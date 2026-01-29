@@ -3,6 +3,7 @@
 import { useConnection } from '@solana/wallet-adapter-react';
 import { useState, useEffect, useCallback } from 'react';
 import { discoverAllPools, fetchTokenMetadata, DiscoveredPool, TokenMetadata } from '@/lib/discovery';
+import { MOCK_MNY } from '@/lib/constants';
 import { getSpotPrice, calculateCirculatingSupply, usdfBaseToWhole, formatUsd } from '@/lib/curve';
 import BigNumber from 'bignumber.js';
 
@@ -92,8 +93,35 @@ export function useDiscoverReserves() {
         }
       }
 
-      // Sort by reserve balance (descending)
-      results.sort((a, b) => b.reserveBalance.minus(a.reserveBalance).toNumber());
+      // Add mock MNY if enabled (duplicates JFY data with MNY branding)
+      if (MOCK_MNY.enabled) {
+        const jfyReserve = results.find(r => r.pool.currencyMint.toString() === MOCK_MNY.realMint);
+        if (jfyReserve) {
+          const mockMnyReserve: DiscoveredReserve = {
+            ...jfyReserve,
+            pool: {
+              ...jfyReserve.pool,
+              // Use a fake address for routing purposes
+              currencyMint: { toString: () => MOCK_MNY.mockMint } as any,
+            },
+            metadata: {
+              name: MOCK_MNY.name,
+              symbol: MOCK_MNY.symbol,
+              icon: MOCK_MNY.icon,
+            },
+          };
+          results.push(mockMnyReserve);
+        }
+      }
+
+      // Sort by reserve balance (descending), but always put Moony first
+      results.sort((a, b) => {
+        // Moony always first
+        if (a.metadata.symbol === 'MNY') return -1;
+        if (b.metadata.symbol === 'MNY') return 1;
+        // Then sort by reserve balance
+        return b.reserveBalance.minus(a.reserveBalance).toNumber();
+      });
 
       setReserves(results);
     } catch (err) {

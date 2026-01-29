@@ -79,3 +79,13 @@ export const MNY_RESERVE = {
 
 // USDF token
 export const USDF_MINT = new PublicKey('5AMAA9JV9H97YYVxx8F6FsCMmTwXSuTTQneiup4RYAUQ');
+
+// Mock Moony token for UI preview (uses JFY data with MNY branding)
+export const MOCK_MNY = {
+  enabled: true, // Set to false to disable mock
+  mockMint: 'MOCK_MNY_PREVIEW_000000000000000000000000', // Fake mint for routing
+  realMint: '54ggcQ23uen5b9QXMAns99MQNTKn7iyzq4wvCW6e8r25', // JFY mint (data source)
+  name: 'Moony',
+  symbol: 'MNY',
+  icon: '/moony.png',
+};

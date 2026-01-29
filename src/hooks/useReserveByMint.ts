@@ -4,6 +4,7 @@ import { useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { useState, useEffect, useCallback } from 'react';
 import { discoverAllPools, fetchTokenMetadata } from '@/lib/discovery';
+import { MOCK_MNY } from '@/lib/constants';
 import { getSpotPrice, calculateCirculatingSupply, usdfBaseToWhole, formatUsd } from '@/lib/curve';
 import { ReserveData } from './useReserve';
 import BigNumber from 'bignumber.js';
@@ -37,23 +38,36 @@ export function useReserveByMint(mintAddress: string): ReserveData {
     }
 
     try {
+      // Check if this is the mock MNY token
+      const isMockMny = MOCK_MNY.enabled && mintAddress === MOCK_MNY.mockMint;
+      const lookupMint = isMockMny ? MOCK_MNY.realMint : mintAddress;
+
       // Step 1: Discover all pools and find the one matching this mint
       const pools = await discoverAllPools(connection);
-      const pool = pools.find(p => p.currencyMint.toString() === mintAddress);
+      const pool = pools.find(p => p.currencyMint.toString() === lookupMint);
 
       if (!pool) {
         setData(prev => ({ ...prev, loading: false, error: 'Reserve not found for this token' }));
         return;
       }
 
-      // Step 2: Fetch token metadata
-      const heliusApiKey = process.env.NEXT_PUBLIC_RPC_URL?.match(/api-key=([^&]+)/)?.[1] || '';
-      const metadata = await fetchTokenMetadata([mintAddress], heliusApiKey);
-      const tokenMetadata = metadata[mintAddress] || {
-        name: 'Unknown Token',
-        symbol: mintAddress.slice(0, 4),
-        icon: '',
-      };
+      // Step 2: Fetch token metadata (or use mock metadata)
+      let tokenMetadata;
+      if (isMockMny) {
+        tokenMetadata = {
+          name: MOCK_MNY.name,
+          symbol: MOCK_MNY.symbol,
+          icon: MOCK_MNY.icon,
+        };
+      } else {
+        const heliusApiKey = process.env.NEXT_PUBLIC_RPC_URL?.match(/api-key=([^&]+)/)?.[1] || '';
+        const metadata = await fetchTokenMetadata([mintAddress], heliusApiKey);
+        tokenMetadata = metadata[mintAddress] || {
+          name: 'Unknown Token',
+          symbol: mintAddress.slice(0, 4),
+          icon: '',
+        };
+      }
 
       // Step 3: Fetch vault balances
       const [tokenVaultInfo, usdfVaultInfo] = await Promise.all([
