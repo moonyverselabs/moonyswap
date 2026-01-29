@@ -75,6 +75,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900">
+      {/* Construction Banner */}
+      <div className="bg-amber-600 text-black text-center py-2 text-sm font-medium">
+        This site is under construction · Confidential preview
+      </div>
+
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4">
