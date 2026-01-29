@@ -86,7 +86,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-white">Moonyswap</h1>
-              <p className="text-sm text-gray-400">Social Token Exchange</p>
+              <p className="text-sm text-gray-400">Buy & Trade Flipcash Coins</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">

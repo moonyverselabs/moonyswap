@@ -9,7 +9,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Moonyswap",
-  description: "Social Token Exchange · Powered by Flipcash",
+  description: "Buy & Trade Flipcash Coins",
 };
 
 export default function RootLayout({
