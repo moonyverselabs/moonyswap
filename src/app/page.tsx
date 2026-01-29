@@ -103,7 +103,7 @@ export default function HomePage() {
                   <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20 max-h-64 overflow-y-auto">
                     {filteredReserves.slice(0, 5).map((reserve) => (
                       <Link
-                        key={reserve.pool.address.toString()}
+                        key={reserve.pool.currencyMint.toString()}
                         href={`/token/${reserve.pool.currencyMint.toString()}`}
                         className="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 transition-colors"
                         onClick={() => setSearch('')}
@@ -193,7 +193,7 @@ export default function HomePage() {
                   );
                   return (
                     <Link
-                      key={reserve.pool.address.toString()}
+                      key={reserve.pool.currencyMint.toString()}
                       href={`/token/${reserve.pool.currencyMint.toString()}`}
                       className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
                     >
