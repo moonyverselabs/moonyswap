@@ -261,7 +261,7 @@ export default function HomePage() {
 
               return (
                 <Link
-                  key={reserve.pool.address.toString()}
+                  key={reserve.pool.currencyMint.toString()}
                   href={`/token/${reserve.pool.currencyMint.toString()}`}
                   className="block bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-purple-500/50 rounded-xl p-4 transition-all"
                 >
