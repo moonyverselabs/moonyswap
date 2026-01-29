@@ -21,7 +21,7 @@ export default function TokenProfilePage({ params }: PageProps) {
         <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 py-4">
             <Link href="/" className="text-xl font-bold text-white hover:text-purple-400 transition-colors">
-              MoonySwap
+              Moonyswap
             </Link>
           </div>
         </header>
@@ -41,7 +41,7 @@ export default function TokenProfilePage({ params }: PageProps) {
         <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 py-4">
             <Link href="/" className="text-xl font-bold text-white hover:text-purple-400 transition-colors">
-              MoonySwap
+              Moonyswap
             </Link>
           </div>
         </header>
@@ -75,7 +75,7 @@ export default function TokenProfilePage({ params }: PageProps) {
       <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold text-white hover:text-purple-400 transition-colors">
-            MoonySwap
+            Moonyswap
           </Link>
           <Link
             href="/"
@@ -198,7 +198,7 @@ export default function TokenProfilePage({ params }: PageProps) {
       {/* Footer */}
       <footer className="border-t border-gray-800 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-500">
-          <p>MoonySwap · Powered by Flipcash · Moonyversal, LLC.</p>
+          <p>Moonyswap · Powered by Flipcash · Moonyversal, LLC.</p>
         </div>
       </footer>
     </div>
