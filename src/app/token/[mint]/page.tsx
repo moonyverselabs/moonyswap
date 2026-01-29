@@ -7,6 +7,7 @@ import { PriceCurveChart } from '@/components/PriceCurveChart';
 import { ReservePanel } from '@/components/ReservePanel';
 import { HoldingsPanel } from '@/components/HoldingsPanel';
 import { formatTokenAmount } from '@/lib/curve';
+import { MOCK_MNY } from '@/lib/constants';
 
 interface PageProps {
   params: Promise<{ mint: string }>;
@@ -64,6 +65,7 @@ export default function TokenProfilePage({ params }: PageProps) {
 
   const supplyPercent = (reserve.circulatingSupply / reserve.totalSupply) * 100;
   const marketCap = reserve.currentPrice.multipliedBy(reserve.circulatingSupply);
+  const isMockMny = MOCK_MNY.enabled && mint === MOCK_MNY.mockMint;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900">
@@ -88,6 +90,14 @@ export default function TokenProfilePage({ params }: PageProps) {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Mock MNY Test Banner */}
+        {isMockMny && (
+          <div className="bg-purple-900/30 border border-purple-700 rounded-lg px-4 py-2 mb-6 flex items-center gap-2">
+            <span className="text-purple-400 text-sm">🧪</span>
+            <span className="text-purple-300 text-sm">{MOCK_MNY.testLabel}</span>
+          </div>
+        )}
+
         {/* Token Header */}
         <div className="flex items-center gap-4 mb-6">
           {reserve.icon ? (

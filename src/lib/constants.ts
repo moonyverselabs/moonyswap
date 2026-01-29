@@ -88,4 +88,6 @@ export const MOCK_MNY = {
   name: 'Moony',
   symbol: 'MNY',
   icon: '/moony.png',
+  isTestVersion: true,
+  testLabel: 'Preview · Using JFY test data',
 };

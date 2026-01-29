@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useDiscoverReserves } from '@/hooks/useDiscoverReserves';
 import { useReserveByMint } from '@/hooks/useReserveByMint';
 import { formatTokenAmount, getSpotPrice, getTokenCost } from '@/lib/curve';
+import { MOCK_MNY } from '@/lib/constants';
 
 // Helper: find supply at a given reserve
 function supplyAtReserve(targetReserve: number): number {
@@ -256,6 +257,7 @@ export default function HomePage() {
               const currentReserve = reserve.reserveBalance.toNumber();
               const milestone = getNextMilestone(currentReserve, currentPrice);
               const marketCap = reserve.currentPrice.multipliedBy(reserve.circulatingSupply);
+              const isMockMny = MOCK_MNY.enabled && reserve.pool.currencyMint.toString() === MOCK_MNY.mockMint;
 
               return (
                 <Link
@@ -284,6 +286,11 @@ export default function HomePage() {
                           {reserve.metadata.name}
                         </h3>
                         <span className="text-gray-500 text-sm">{reserve.metadata.symbol}</span>
+                        {isMockMny && (
+                          <span className="text-xs bg-purple-900/50 text-purple-400 px-1.5 py-0.5 rounded">
+                            Preview
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-4 text-sm">
                         <span className="text-gray-400">
