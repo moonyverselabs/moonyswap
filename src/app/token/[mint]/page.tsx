@@ -22,18 +22,18 @@ export default function TokenProfilePage({ params }: PageProps) {
 
   if (reserve.loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900">
-        <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+      <div className="min-h-screen bg-moony-subtle">
+        <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-6 py-4">
-            <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+            <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
               Moonyswap
             </Link>
           </div>
         </header>
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
-            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-400">Loading token data...</p>
+            <div className="w-12 h-12 border-4 border-[#D8C5FD] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-[#a0a0a8]">Loading token data...</p>
           </div>
         </div>
       </div>
@@ -42,21 +42,21 @@ export default function TokenProfilePage({ params }: PageProps) {
 
   if (reserve.error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900">
-        <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm">
+      <div className="min-h-screen bg-moony-subtle">
+        <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-6 py-4">
-            <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+            <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
               Moonyswap
             </Link>
           </div>
         </header>
         <div className="flex items-center justify-center py-32">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center max-w-md">
+          <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl p-8 text-center max-w-md">
             <p className="text-red-400 font-semibold text-lg">Token not found</p>
-            <p className="text-slate-400 text-sm mt-2">{reserve.error}</p>
+            <p className="text-[#a0a0a8] text-sm mt-2">{reserve.error}</p>
             <Link
               href="/"
-              className="inline-block mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+              className="inline-block mt-4 px-4 py-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-white rounded-lg transition-colors"
             >
               ← Back to tokens
             </Link>
@@ -71,21 +71,21 @@ export default function TokenProfilePage({ params }: PageProps) {
   const isMockMny = MOCK_MNY.enabled && mint === MOCK_MNY.mockMint;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900">
+    <div className="min-h-screen bg-moony-subtle">
       {/* Construction Banner */}
-      <div className="bg-amber-600 text-black text-center py-2 text-sm font-medium">
+      <div className="bg-amber-500/90 text-[#0c0c0f] text-center py-2 text-sm font-medium">
         This site is under construction · Confidential preview
       </div>
 
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+          <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
             Moonyswap
           </Link>
           <Link
             href="/"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-[#a0a0a8] rounded-lg text-sm font-medium transition-colors"
           >
             ← All Tokens
           </Link>
@@ -98,9 +98,9 @@ export default function TokenProfilePage({ params }: PageProps) {
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Mock MNY Test Banner */}
         {isMockMny && (
-          <div className="bg-emerald-900/30 border border-teal-600 rounded-lg px-4 py-2 mb-6 flex items-center gap-2">
-            <span className="text-emerald-400 text-sm">🧪</span>
-            <span className="text-emerald-300 text-sm">{MOCK_MNY.testLabel}</span>
+          <div className="bg-[#D8C5FD]/10 border border-[#D8C5FD]/30 rounded-lg px-4 py-2 mb-6 flex items-center gap-2">
+            <span className="text-[#D8C5FD] text-sm">🧪</span>
+            <span className="text-[#D8C5FD] text-sm">{MOCK_MNY.testLabel}</span>
           </div>
         )}
 
@@ -113,13 +113,13 @@ export default function TokenProfilePage({ params }: PageProps) {
               className="w-14 h-14 rounded-full"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xl font-bold">
+            <div className="w-14 h-14 rounded-full bg-moony-gradient flex items-center justify-center text-[#0c0c0f] text-xl font-bold">
               {reserve.symbol.charAt(0)}
             </div>
           )}
           <div>
             <h1 className="text-2xl font-bold text-white">{reserve.name}</h1>
-            <p className="text-slate-400 text-sm">{reserve.symbol}</p>
+            <p className="text-[#a0a0a8] text-sm">{reserve.symbol}</p>
           </div>
         </div>
 
@@ -129,21 +129,21 @@ export default function TokenProfilePage({ params }: PageProps) {
           <div className="lg:col-span-3 space-y-6">
             {/* Stats Row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                <p className="text-xs text-slate-500 mb-1">Price</p>
+              <div className="bg-[#141418] rounded-xl p-4 border border-[#2a2a30]">
+                <p className="text-xs text-[#707078] mb-1">Price</p>
                 <p className="text-lg font-bold text-white">{reserve.currentPriceFormatted}</p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                <p className="text-xs text-slate-500 mb-1">Reserve</p>
+              <div className="bg-[#141418] rounded-xl p-4 border border-[#2a2a30]">
+                <p className="text-xs text-[#707078] mb-1">Reserve</p>
                 <p className="text-lg font-bold text-white">{reserve.reserveBalanceFormatted}</p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                <p className="text-xs text-slate-500 mb-1">Supply</p>
+              <div className="bg-[#141418] rounded-xl p-4 border border-[#2a2a30]">
+                <p className="text-xs text-[#707078] mb-1">Supply</p>
                 <p className="text-lg font-bold text-white">{formatTokenAmount(reserve.circulatingSupply, 0)}</p>
-                <p className="text-xs text-slate-600">{supplyPercent.toFixed(4)}%</p>
+                <p className="text-xs text-[#707078]">{supplyPercent.toFixed(4)}%</p>
               </div>
-              <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                <p className="text-xs text-slate-500 mb-1">Market Cap</p>
+              <div className="bg-[#141418] rounded-xl p-4 border border-[#2a2a30]">
+                <p className="text-xs text-[#707078] mb-1">Market Cap</p>
                 <p className="text-lg font-bold text-white">
                   ${marketCap.isLessThan(1000) ? marketCap.toFixed(2) : marketCap.toFormat(0)}
                 </p>
@@ -179,30 +179,30 @@ export default function TokenProfilePage({ params }: PageProps) {
             />
 
             {/* Token Info */}
-            <div className="bg-slate-900 rounded-xl p-5 border border-slate-800">
+            <div className="bg-[#141418] rounded-xl p-5 border border-[#2a2a30]">
               <h3 className="text-white font-semibold text-sm mb-3">Token Info</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Mint</span>
+                  <span className="text-[#707078]">Mint</span>
                   <a
                     href={`https://solscan.io/token/${mint}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 font-mono text-xs"
+                    className="text-[#D8C5FD] hover:text-[#FFF2D9] font-mono text-xs"
                   >
                     {mint.slice(0, 6)}...{mint.slice(-4)}
                   </a>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Total Supply</span>
+                  <span className="text-[#707078]">Total Supply</span>
                   <span className="text-white">{formatTokenAmount(reserve.totalSupply, 0)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Decimals</span>
+                  <span className="text-[#707078]">Decimals</span>
                   <span className="text-white">10</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Sell Fee</span>
+                  <span className="text-[#707078]">Sell Fee</span>
                   <span className="text-white">1%</span>
                 </div>
               </div>

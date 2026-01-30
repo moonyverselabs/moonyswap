@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Moony Brand Colors */
+  --moony-purple: #D8C5FD;
+  --moony-cream: #FFF2D9;
+  --moony-purple-dim: #B8A5DD;
+  --moony-cream-dim: #DFD2B9;
+
+  /* Dark mode base */
+  --background: #0c0c0f;
+  --background-secondary: #141418;
+  --background-tertiary: #1a1a1f;
+  --foreground: #f5f5f5;
+  --foreground-muted: #a0a0a8;
+  --border: #2a2a30;
 }
 
 @theme inline {
@@ -10,19 +21,53 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Custom Moony colors for Tailwind */
+  --color-moony-purple: var(--moony-purple);
+  --color-moony-cream: var(--moony-cream);
+  --color-moony-purple-dim: var(--moony-purple-dim);
+  --color-moony-cream-dim: var(--moony-cream-dim);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Moony gradient utilities */
+.bg-moony-gradient {
+  background: linear-gradient(to bottom, var(--moony-purple), var(--moony-cream));
+}
+
+.text-moony-gradient {
+  background: linear-gradient(to right, var(--moony-purple), var(--moony-cream));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-moony-gradient {
+  border-image: linear-gradient(to right, var(--moony-purple), var(--moony-cream)) 1;
+}
+
+/* Button with gradient */
+.btn-moony {
+  background: linear-gradient(135deg, var(--moony-purple), var(--moony-cream));
+  color: #0c0c0f;
+  font-weight: 600;
+}
+
+.btn-moony:hover {
+  background: linear-gradient(135deg, var(--moony-purple-dim), var(--moony-cream-dim));
+}
+
+/* Subtle page gradient overlay */
+.bg-moony-subtle {
+  background:
+    radial-gradient(ellipse at top left, rgba(216, 197, 253, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255, 242, 217, 0.05) 0%, transparent 50%),
+    var(--background);
 }
 
 /* Hide scrollbar but allow scrolling */
