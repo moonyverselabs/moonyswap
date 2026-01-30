@@ -245,9 +245,8 @@ export default function HomePage() {
             {/* Left: Branding & Copy */}
             <div className="flex-1 text-center lg:text-left">
               <p className="text-sm text-[#a0a0a8] uppercase tracking-widest mb-3">Decentralized Currency Exchange</p>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
-                Your gateway to
-                <span className="text-moony-gradient"> digital economies</span>
+              <h2 className="text-3xl lg:text-4xl font-bold text-moony-gradient mb-4 leading-tight">
+                Your gateway to digital economies
               </h2>
               <p className="text-[#a0a0a8] max-w-lg leading-relaxed text-justify mb-5">
                 Programmable currencies secured by Proof of Capital. Transparent on-chain reserves with guaranteed liquidity. Powered by Flipcash Protocol.
