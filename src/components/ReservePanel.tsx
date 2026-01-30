@@ -1,243 +1,463 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useReserve } from '@/hooks/useReserve';
-import { useReserveByMint } from '@/hooks/useReserveByMint';
-import { getTokenCost, getTokensForUsdf, getSellValue, formatUsd, formatTokenAmount } from '@/lib/curve';
-import { BUY_FEE_BPS, isFeeExempt } from '@/lib/constants';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { useDiscoverReserves, DiscoveredReserve } from '@/hooks/useDiscoverReserves';
+import { getTokensForUsdf, getSellValue, getTokenCost, getSpotPrice, formatUsd, formatTokenAmount } from '@/lib/curve';
+import { SELL_FEE_BPS, BUY_FEE_BPS, isFeeExempt } from '@/lib/constants';
 import BigNumber from 'bignumber.js';
+
+interface SwapToken {
+  type: 'usdf' | 'currency';
+  symbol: string;
+  icon: string;
+  mint?: string;
+  reserve?: DiscoveredReserve;
+}
+
+const USDF_TOKEN: SwapToken = {
+  type: 'usdf',
+  symbol: 'USDF',
+  icon: '',
+  mint: 'usdf',
+};
 
 interface ReservePanelProps {
   tokenKey?: string;
   tokenMint?: string;
 }
 
-export function ReservePanel({ tokenKey = 'jeffy', tokenMint }: ReservePanelProps) {
+export function ReservePanel({ tokenMint }: ReservePanelProps) {
   const wallet = useWallet();
+  const { setVisible: setWalletModalVisible } = useWalletModal();
+  const { reserves, loading: reservesLoading } = useDiscoverReserves();
 
-  // Use mint-based loading if tokenMint is provided, otherwise use key-based
-  const reserveByKey = useReserve(tokenKey);
-  const reserveByMint = useReserveByMint(tokenMint || '');
-  const reserve = tokenMint ? reserveByMint : reserveByKey;
-  const [mode, setMode] = useState<'buy' | 'sell'>('buy');
-  const [amount, setAmount] = useState('');
+  const [inputToken, setInputToken] = useState<SwapToken>(USDF_TOKEN);
+  const [outputToken, setOutputToken] = useState<SwapToken | null>(null);
+  const [inputUsdAmount, setInputUsdAmount] = useState(''); // Always in USD
+  const [showInputSelector, setShowInputSelector] = useState(false);
+  const [showOutputSelector, setShowOutputSelector] = useState(false);
 
-  // Check if this token is fee-exempt (MNY)
-  const isExempt = tokenMint ? isFeeExempt(tokenMint) : false;
+  // Build available tokens list
+  const availableTokens: SwapToken[] = useMemo(() => {
+    const tokens: SwapToken[] = [USDF_TOKEN];
+    for (const r of reserves) {
+      tokens.push({
+        type: 'currency',
+        symbol: r.metadata.symbol,
+        icon: r.metadata.icon,
+        mint: r.pool.currencyMint.toString(),
+        reserve: r,
+      });
+    }
+    return tokens;
+  }, [reserves]);
 
+  // Set default output token to the current page's token when reserves load
+  useEffect(() => {
+    if (!outputToken && availableTokens.length > 1 && tokenMint) {
+      const pageToken = availableTokens.find(t => t.mint === tokenMint);
+      if (pageToken) {
+        setOutputToken(pageToken);
+      } else if (availableTokens.length > 1) {
+        setOutputToken(availableTokens[1]);
+      }
+    } else if (!outputToken && availableTokens.length > 1) {
+      setOutputToken(availableTokens[1]);
+    }
+  }, [availableTokens, tokenMint, outputToken]);
+
+  // Calculate input token amount from USD
+  const inputTokenAmount = useMemo(() => {
+    if (!inputUsdAmount || isNaN(Number(inputUsdAmount)) || Number(inputUsdAmount) <= 0) {
+      return null;
+    }
+    const usdValue = Number(inputUsdAmount);
+
+    if (inputToken.type === 'usdf') {
+      return new BigNumber(usdValue); // 1:1 for USDF
+    }
+    if (inputToken.reserve) {
+      // USD / price = token amount
+      return new BigNumber(usdValue).dividedBy(inputToken.reserve.currentPrice);
+    }
+    return null;
+  }, [inputUsdAmount, inputToken]);
+
+  // Calculate quote
   const quote = useMemo(() => {
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    if (!inputToken || !outputToken || !inputTokenAmount || inputTokenAmount.isLessThanOrEqualTo(0)) {
       return null;
     }
 
-    const numAmount = Number(amount);
+    const numTokens = inputTokenAmount.toNumber();
 
     try {
-      if (mode === 'buy') {
-        // User enters USDF amount, deduct fee (unless exempt), get tokens out
-        const feeAmount = isExempt ? new BigNumber(0) : new BigNumber(numAmount).multipliedBy(BUY_FEE_BPS).dividedBy(10000);
-        const netAmount = new BigNumber(numAmount).minus(feeAmount);
-        const tokensOut = getTokensForUsdf(reserve.circulatingSupply, netAmount);
-        const avgPrice = new BigNumber(numAmount).dividedBy(tokensOut);
+      // Same token - no swap needed
+      if (inputToken.mint === outputToken.mint) {
+        return null;
+      }
+
+      // USDF -> Currency (buy)
+      if (inputToken.type === 'usdf' && outputToken.type === 'currency' && outputToken.reserve) {
+        const isExempt = outputToken.mint ? isFeeExempt(outputToken.mint) : false;
+        const feeAmount = isExempt ? new BigNumber(0) : new BigNumber(numTokens).multipliedBy(BUY_FEE_BPS).dividedBy(10000);
+        const netAmount = new BigNumber(numTokens).minus(feeAmount);
+        const tokensOut = getTokensForUsdf(outputToken.reserve.circulatingSupply, netAmount);
+
+        // Value tokens at POST-trade spot price (your tokens are worth more after you buy!)
+        const newSupply = outputToken.reserve.circulatingSupply + tokensOut.toNumber();
+        const postTradeSpotPrice = getSpotPrice(newSupply);
+        const outputUsdValue = postTradeSpotPrice.multipliedBy(tokensOut);
+
+        // Price impact: how much the trade moves the spot price (positive = price went up)
+        const preTradeSpotPrice = outputToken.reserve.currentPrice;
+        const priceImpact = postTradeSpotPrice.minus(preTradeSpotPrice).dividedBy(preTradeSpotPrice).multipliedBy(100);
+
         return {
-          input: numAmount,
-          inputLabel: 'USDF',
-          output: tokensOut,
-          outputLabel: reserve.symbol,
-          avgPrice,
-          priceImpact: avgPrice.minus(reserve.currentPrice).dividedBy(reserve.currentPrice).multipliedBy(100),
-          fee: feeAmount,
-          feePercent: BUY_FEE_BPS / 100,
-        };
-      } else {
-        // User enters token amount, get USDF out (protocol fee already included in getSellValue)
-        const usdfOut = getSellValue(reserve.circulatingSupply, numAmount);
-        const avgPrice = usdfOut.dividedBy(numAmount);
-        return {
-          input: numAmount,
-          inputLabel: reserve.symbol,
-          output: usdfOut,
-          outputLabel: 'USDF',
-          avgPrice,
-          priceImpact: reserve.currentPrice.minus(avgPrice).dividedBy(reserve.currentPrice).multipliedBy(100),
-          fee: null,
-          feePercent: 0,
+          route: 'direct' as const,
+          routeLabel: `USDF → ${outputToken.symbol}`,
+          outputTokenAmount: tokensOut,
+          outputUsdValue,
+          fees: feeAmount.isGreaterThan(0) ? [{ label: `Moonyswap (${BUY_FEE_BPS / 100}%)`, amount: feeAmount }] : [],
+          priceImpact,
         };
       }
+
+      // Currency -> USDF (sell)
+      if (inputToken.type === 'currency' && outputToken.type === 'usdf' && inputToken.reserve) {
+        // getSellValue returns USDF after 1% fee is deducted
+        const usdfOut = getSellValue(inputToken.reserve.circulatingSupply, numTokens);
+
+        // Calculate gross value from curve (before fee) to get accurate fee amount
+        const newSupply = inputToken.reserve.circulatingSupply - numTokens;
+        const grossValue = getTokenCost(newSupply, numTokens);
+        const actualFee = grossValue.multipliedBy(SELL_FEE_BPS).dividedBy(10000);
+
+        // Price impact: difference between spot price and average execution price (before fee)
+        const spotPrice = inputToken.reserve.currentPrice;
+        const avgExecutionPrice = grossValue.dividedBy(numTokens);
+        const priceImpact = spotPrice.minus(avgExecutionPrice).dividedBy(spotPrice).multipliedBy(100).abs();
+
+        return {
+          route: 'direct' as const,
+          routeLabel: `${inputToken.symbol} → USDF`,
+          outputTokenAmount: usdfOut,
+          outputUsdValue: usdfOut, // USDF is 1:1 with USD
+          fees: [{ label: 'Flipcash (1%)', amount: actualFee }],
+          priceImpact,
+        };
+      }
+
+      // Currency -> Currency (routed through USDF)
+      if (inputToken.type === 'currency' && outputToken.type === 'currency' &&
+          inputToken.reserve && outputToken.reserve) {
+        // Step 1: Sell input for USDF
+        const usdfFromSell = getSellValue(inputToken.reserve.circulatingSupply, numTokens);
+
+        // Calculate actual sell fee from gross value
+        const newInputSupply = inputToken.reserve.circulatingSupply - numTokens;
+        const grossSellValue = getTokenCost(newInputSupply, numTokens);
+        const sellFee = grossSellValue.multipliedBy(SELL_FEE_BPS).dividedBy(10000);
+
+        // Price impact on sell leg
+        const inputSpotPrice = inputToken.reserve.currentPrice;
+        const avgSellPrice = grossSellValue.dividedBy(numTokens);
+        const sellPriceImpact = inputSpotPrice.minus(avgSellPrice).dividedBy(inputSpotPrice).multipliedBy(100);
+
+        // Step 2: Buy output with USDF
+        const isExempt = outputToken.mint ? isFeeExempt(outputToken.mint) : false;
+        const buyFee = isExempt ? new BigNumber(0) : usdfFromSell.multipliedBy(BUY_FEE_BPS).dividedBy(10000);
+        const netUsdf = usdfFromSell.minus(buyFee);
+        const tokensOut = getTokensForUsdf(outputToken.reserve.circulatingSupply, netUsdf);
+
+        // Value tokens at POST-trade spot price (your tokens are worth more after you buy!)
+        const newOutputSupply = outputToken.reserve.circulatingSupply + tokensOut.toNumber();
+        const postTradeOutputPrice = getSpotPrice(newOutputSupply);
+        const outputUsdValue = postTradeOutputPrice.multipliedBy(tokensOut);
+
+        // Price impact on buy leg (pre vs post trade price)
+        const preTradeOutputPrice = outputToken.reserve.currentPrice;
+        const buyPriceImpact = postTradeOutputPrice.minus(preTradeOutputPrice).dividedBy(preTradeOutputPrice).multipliedBy(100);
+
+        // Combined price impact (sell slippage + buy price movement)
+        const totalPriceImpact = sellPriceImpact.plus(buyPriceImpact).abs();
+
+        const fees = [{ label: 'Flipcash (1%)', amount: sellFee }];
+        if (buyFee.isGreaterThan(0)) {
+          fees.push({ label: `Moonyswap (${BUY_FEE_BPS / 100}%)`, amount: buyFee });
+        }
+
+        return {
+          route: 'routed' as const,
+          routeLabel: `${inputToken.symbol} → USDF → ${outputToken.symbol}`,
+          outputTokenAmount: tokensOut,
+          outputUsdValue,
+          intermediate: usdfFromSell,
+          fees,
+          priceImpact: totalPriceImpact,
+        };
+      }
+
+      return null;
     } catch (err) {
       return null;
     }
-  }, [amount, mode, reserve, isExempt]);
+  }, [inputToken, outputToken, inputTokenAmount]);
 
-  if (reserve.loading) {
-    return (
-      <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-        <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-gray-800 rounded-lg"></div>
-          <div className="h-16 bg-gray-800 rounded-lg"></div>
-          <div className="h-12 bg-gray-800 rounded-lg"></div>
+  // Swap input/output tokens
+  const handleSwapDirection = () => {
+    const temp = inputToken;
+    setInputToken(outputToken || USDF_TOKEN);
+    setOutputToken(temp);
+    setInputUsdAmount('');
+  };
+
+  // Token icon component
+  const TokenIcon = ({ token, size = 'md' }: { token: SwapToken; size?: 'sm' | 'md' | 'lg' }) => {
+    const sizeClasses = {
+      sm: 'w-5 h-5 text-xs',
+      md: 'w-6 h-6 text-sm',
+      lg: 'w-8 h-8 text-base',
+    };
+    const cls = sizeClasses[size];
+
+    if (token.type === 'usdf') {
+      return (
+        <div className={`${cls} rounded-full bg-green-500 flex items-center justify-center text-white font-bold`}>
+          $
         </div>
+      );
+    }
+    if (token.icon) {
+      return <img src={token.icon} alt={token.symbol} className={`${cls} rounded-full`} />;
+    }
+    return (
+      <div className={`${cls} rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold`}>
+        {token.symbol.charAt(0)}
       </div>
     );
-  }
+  };
 
-  if (reserve.error) {
+  // Token selector dropdown
+  const TokenSelector = ({
+    selected,
+    onSelect,
+    show,
+    setShow,
+    exclude,
+  }: {
+    selected: SwapToken | null;
+    onSelect: (token: SwapToken) => void;
+    show: boolean;
+    setShow: (show: boolean) => void;
+    exclude?: SwapToken | null;
+  }) => (
+    <div className="relative">
+      <button
+        onClick={() => setShow(!show)}
+        className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 pl-2 pr-3 py-2 rounded-xl transition-colors min-w-[100px]"
+      >
+        {selected ? (
+          <>
+            <TokenIcon token={selected} />
+            <span className="text-white font-semibold">{selected.symbol}</span>
+          </>
+        ) : (
+          <span className="text-slate-400">Select</span>
+        )}
+        <svg className="w-4 h-4 text-slate-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {show && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setShow(false)} />
+          <div className="absolute right-0 mt-2 w-52 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-20 py-2 max-h-64 overflow-y-auto">
+            {availableTokens
+              .filter(t => !exclude || t.mint !== exclude.mint)
+              .map((token) => (
+                <button
+                  key={token.mint || token.symbol}
+                  onClick={() => {
+                    onSelect(token);
+                    setShow(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700 transition-colors ${
+                    selected?.mint === token.mint ? 'bg-slate-700' : ''
+                  }`}
+                >
+                  <TokenIcon token={token} />
+                  <div className="flex-1 text-left">
+                    <div className="text-white font-medium">{token.symbol}</div>
+                    {token.reserve && (
+                      <div className="text-slate-500 text-xs">{token.reserve.currentPriceFormatted}</div>
+                    )}
+                    {token.type === 'usdf' && (
+                      <div className="text-slate-500 text-xs">$1.00</div>
+                    )}
+                  </div>
+                </button>
+              ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  if (reservesLoading) {
     return (
-      <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-        <div className="text-red-400 text-center">
-          <p className="font-semibold text-sm">Error loading reserve</p>
-          <p className="text-xs mt-1">{reserve.error}</p>
+      <div className="bg-slate-900 rounded-xl p-5 border border-slate-800">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-slate-800 rounded-lg w-24" />
+          <div className="h-24 bg-slate-800 rounded-xl" />
+          <div className="h-24 bg-slate-800 rounded-xl" />
+          <div className="h-12 bg-slate-800 rounded-lg" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-      {/* Header with Wallet */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold text-sm">Swap</h3>
-        <WalletMultiButton className="!bg-purple-600 hover:!bg-purple-700 !rounded-lg !h-8 !text-xs !px-3" />
+    <div className="bg-slate-900 rounded-xl p-5 border border-slate-800">
+      {/* Header */}
+      <div className="mb-4">
+        <h3 className="text-white font-semibold">Swap</h3>
       </div>
 
-      {/* Mode Toggle */}
-      <div className="flex rounded-lg bg-gray-800 p-1 mb-4">
-        <button
-          onClick={() => setMode('buy')}
-          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-            mode === 'buy'
-              ? 'bg-gray-700 text-white'
-              : 'text-gray-400 hover:text-gray-200'
-          }`}
-        >
-          Buy
-        </button>
-        <button
-          onClick={() => setMode('sell')}
-          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-            mode === 'sell'
-              ? 'bg-gray-700 text-white'
-              : 'text-gray-400 hover:text-gray-200'
-          }`}
-        >
-          Sell
-        </button>
-      </div>
-
-      {/* Input */}
-      <div className="bg-gray-800 rounded-lg p-3 mb-3">
-        <div className="flex justify-between text-xs text-gray-500 mb-2">
-          <span>{mode === 'buy' ? 'You pay' : 'You sell'}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="flex-1 bg-transparent text-xl font-bold text-white outline-none placeholder-gray-600 min-w-0"
+      {/* Input (You pay) - USD denominated */}
+      <div className="bg-slate-800 rounded-xl p-4 mb-2">
+        <div className="text-xs text-slate-500 mb-2">You pay</div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 flex items-center min-w-0">
+            <span className="text-2xl font-bold text-slate-500 mr-1">$</span>
+            <input
+              type="number"
+              value={inputUsdAmount}
+              onChange={(e) => setInputUsdAmount(e.target.value)}
+              placeholder="0"
+              className="flex-1 bg-transparent text-2xl font-bold text-white outline-none placeholder-slate-600 min-w-0"
+            />
+          </div>
+          <TokenSelector
+            selected={inputToken}
+            onSelect={(t) => { setInputToken(t); setInputUsdAmount(''); }}
+            show={showInputSelector}
+            setShow={setShowInputSelector}
+            exclude={outputToken}
           />
-          <div className="flex items-center gap-1.5 bg-gray-700 px-2.5 py-1.5 rounded-lg flex-shrink-0">
-            {mode === 'buy' ? (
-              <>
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold">$</div>
-                <span className="text-white text-sm font-medium">USDF</span>
-              </>
-            ) : (
-              <>
-                {reserve.icon ? (
-                  <img src={reserve.icon} alt={reserve.symbol} className="w-5 h-5 rounded-full" />
-                ) : (
-                  <div className="w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                    {reserve.symbol.charAt(0)}
-                  </div>
-                )}
-                <span className="text-white text-sm font-medium">{reserve.symbol}</span>
-              </>
-            )}
-          </div>
         </div>
+        {inputTokenAmount && inputTokenAmount.isGreaterThan(0) && (
+          <div className="text-sm text-slate-500 mt-2">
+            {formatTokenAmount(inputTokenAmount, 2)} {inputToken.symbol}
+          </div>
+        )}
       </div>
 
-      {/* Quote */}
+      {/* Swap Direction Button */}
+      <div className="flex justify-center -my-4 relative z-10">
+        <button
+          onClick={handleSwapDirection}
+          className="bg-slate-800 border-4 border-slate-900 rounded-xl p-2 hover:bg-slate-700 transition-colors"
+        >
+          <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Output (You receive) - USD denominated */}
+      <div className="bg-slate-800 rounded-xl p-4 mb-4">
+        <div className="text-xs text-slate-500 mb-2">You receive</div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 flex items-center min-w-0">
+            <span className="text-2xl font-bold text-slate-500 mr-1">$</span>
+            <span className="text-2xl font-bold text-white">
+              {quote ? quote.outputUsdValue.toFixed(2) : '0'}
+            </span>
+          </div>
+          <TokenSelector
+            selected={outputToken}
+            onSelect={(t) => { setOutputToken(t); setInputUsdAmount(''); }}
+            show={showOutputSelector}
+            setShow={setShowOutputSelector}
+            exclude={inputToken}
+          />
+        </div>
+        {quote && (
+          <div className="text-sm text-slate-500 mt-2">
+            {formatTokenAmount(quote.outputTokenAmount, 2)} {outputToken?.symbol}
+          </div>
+        )}
+      </div>
+
+      {/* Quote Details */}
       {quote && (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 mb-4 space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400 text-sm">You receive</span>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-white">
-                {formatTokenAmount(quote.output, 4)}
-              </span>
-              {mode === 'buy' ? (
-                <div className="flex items-center gap-1 bg-gray-700 px-1.5 py-0.5 rounded">
-                  {reserve.icon ? (
-                    <img src={reserve.icon} alt={reserve.symbol} className="w-4 h-4 rounded-full" />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                      {reserve.symbol.charAt(0)}
-                    </div>
-                  )}
-                  <span className="text-white text-xs font-medium">{reserve.symbol}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 bg-gray-700 px-1.5 py-0.5 rounded">
-                  <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold">$</div>
-                  <span className="text-white text-xs font-medium">USDF</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Avg. Price</span>
-            <span className="text-gray-300">{formatUsd(quote.avgPrice)}</span>
-          </div>
-          {quote.priceImpact.abs().isGreaterThan(0.01) && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Price Impact</span>
-              <span className={quote.priceImpact.isGreaterThan(1) ? 'text-orange-400' : 'text-gray-300'}>
-                {quote.priceImpact.toFixed(2)}%
-              </span>
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 mb-4 space-y-2 text-sm">
+          {quote.route === 'routed' && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">Route</span>
+              <span className="text-emerald-400 font-medium">{quote.routeLabel}</span>
             </div>
           )}
-          {mode === 'buy' && quote.fee && quote.fee.isGreaterThan(0) && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Fee ({quote.feePercent}%)</span>
-              <span className="text-gray-300">{formatUsd(quote.fee)}</span>
+          {quote.route === 'routed' && 'intermediate' in quote && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">Via USDF</span>
+              <span className="text-slate-300">{formatUsd(quote.intermediate)}</span>
             </div>
           )}
-          {mode === 'sell' && (
-            <div className="flex justify-between text-xs">
-              <span className="text-gray-500">Protocol Fee (1%)</span>
-              <span className="text-gray-300">Included</span>
+          {quote.fees.map((fee, i) => (
+            <div key={i} className="flex justify-between">
+              <span className="text-slate-500">{fee.label}</span>
+              <span className="text-orange-400">-{formatUsd(fee.amount)}</span>
+            </div>
+          ))}
+          {quote.priceImpact.isGreaterThan(0.5) && (
+            <div className="flex justify-between">
+              <span className="text-slate-500">Price Impact</span>
+              <span className={
+                inputToken.type === 'usdf'
+                  ? 'text-green-400' // Buying = price going up is good!
+                  : quote.priceImpact.isGreaterThan(3) ? 'text-red-400' : 'text-orange-400'
+              }>
+                {inputToken.type === 'usdf' ? '+' : '~'}{quote.priceImpact.toFixed(2)}%
+              </span>
             </div>
           )}
         </div>
       )}
 
-      {/* Action Button */}
-      <button
-        disabled={!wallet.connected || !quote}
-        className={`w-full py-3 rounded-lg font-semibold text-sm transition-all ${
-          wallet.connected && quote
-            ? 'bg-purple-600 hover:bg-purple-700 text-white'
-            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-        }`}
-      >
-        {!wallet.connected
-          ? 'Connect Wallet'
-          : !quote
-          ? 'Enter Amount'
-          : mode === 'buy'
-          ? `Buy ${reserve.symbol}`
-          : `Sell ${reserve.symbol}`}
-      </button>
+      {/* Swap Button */}
+      {!wallet.connected ? (
+        <button
+          onClick={() => setWalletModalVisible(true)}
+          className="w-full py-3.5 rounded-xl font-semibold transition-all bg-emerald-600 hover:bg-emerald-700 text-white"
+        >
+          Connect Wallet
+        </button>
+      ) : (
+        <button
+          disabled={!quote}
+          className={`w-full py-3.5 rounded-xl font-semibold transition-all ${
+            quote
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          {!inputToken || !outputToken
+            ? 'Select tokens'
+            : !quote
+            ? 'Enter amount'
+            : `Swap $${inputUsdAmount} of ${inputToken.symbol}`}
+        </button>
+      )}
 
-      {/* Warning */}
+      {/* Coming Soon Notice */}
       {wallet.connected && quote && (
         <p className="text-center text-xs text-orange-400 mt-3">
-          Transactions disabled - USDF not yet available
+          Swaps coming soon
         </p>
       )}
     </div>

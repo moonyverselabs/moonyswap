@@ -11,6 +11,7 @@ export interface ReserveData {
   name: string;
   symbol: string;
   mint: PublicKey;
+  pool: PublicKey;
   icon: string;
   circulatingSupply: number;
   totalSupply: number;
@@ -49,6 +50,7 @@ export function useReserve(tokenKey: string = 'jeffy'): ReserveData {
     name: '',
     symbol: '',
     mint: PublicKey.default,
+    pool: PublicKey.default,
     icon: '',
     circulatingSupply: 0,
     totalSupply: 21_000_000,
@@ -94,6 +96,7 @@ export function useReserve(tokenKey: string = 'jeffy'): ReserveData {
         name: token.name,
         symbol: token.symbol,
         mint: token.mint,
+        pool: token.pool,
         icon: token.icon,
         circulatingSupply,
         totalSupply: 21_000_000,
@@ -118,6 +121,7 @@ export function useReserve(tokenKey: string = 'jeffy'): ReserveData {
         name: token.name,
         symbol: token.symbol,
         mint: token.mint,
+        pool: token.pool,
         icon: token.icon,
         circulatingSupply: mockCirculatingSupply,
         totalSupply: 21_000_000,
@@ -175,6 +179,7 @@ export function useMultipleReserves(tokenKeys: string[] = Object.keys(KNOWN_TOKE
               name: token.name,
               symbol: token.symbol,
               mint: token.mint,
+              pool: token.pool,
               icon: token.icon,
               circulatingSupply,
               totalSupply: 21_000_000,

@@ -114,20 +114,20 @@ export function HoldingsPanel({
     });
 
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+      <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
         <h3 className="text-white font-semibold mb-4">What if you held 1,000 {tokenSymbol}?</h3>
 
         <div className="mb-4">
-          <div className="text-sm text-gray-400 mb-1">Current value</div>
+          <div className="text-sm text-slate-400 mb-1">Current value</div>
           <div className="text-2xl font-bold text-white">{formatUsd(exampleValue)}</div>
         </div>
 
-        <div className="text-gray-400 text-sm mb-3">If reserve reaches...</div>
+        <div className="text-slate-400 text-sm mb-3">If reserve reaches...</div>
         <div className="space-y-2 mb-5">
           {previewProjections.map(proj => (
             <div
               key={proj.milestone}
-              className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-2"
+              className="flex items-center justify-between bg-slate-800/50 rounded-lg px-3 py-2"
             >
               <span className="text-white font-medium">{proj.label}</span>
               <div className="text-right">
@@ -140,7 +140,7 @@ export function HoldingsPanel({
 
         <button
           onClick={() => document.querySelector<HTMLButtonElement>('.wallet-adapter-button')?.click()}
-          className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
           Connect Wallet to See Your Holdings
         </button>
@@ -150,11 +150,11 @@ export function HoldingsPanel({
 
   if (loading) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+      <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
         <h3 className="text-white font-semibold mb-4">Your Holdings</h3>
         <div className="animate-pulse space-y-3">
-          <div className="h-6 bg-gray-700 rounded w-1/2"></div>
-          <div className="h-20 bg-gray-700 rounded"></div>
+          <div className="h-6 bg-slate-700 rounded w-1/2"></div>
+          <div className="h-20 bg-slate-700 rounded"></div>
         </div>
       </div>
     );
@@ -162,9 +162,9 @@ export function HoldingsPanel({
 
   if (balance === null || balance === 0) {
     return (
-      <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+      <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
         <h3 className="text-white font-semibold mb-4">Your Holdings</h3>
-        <p className="text-gray-400 text-sm">
+        <p className="text-slate-400 text-sm">
           You don't hold any {tokenSymbol} yet.
         </p>
       </div>
@@ -204,19 +204,19 @@ export function HoldingsPanel({
   const supplyPercent = (balance / 21_000_000) * 100;
 
   return (
-    <div className="bg-gradient-to-br from-purple-900/30 to-gray-900 rounded-xl p-6 border border-purple-800/50">
+    <div className="bg-gradient-to-br from-emerald-900/30 to-slate-900 rounded-xl p-6 border border-purple-800/50">
       <h3 className="text-white font-semibold mb-4">Your Holdings</h3>
 
       {/* Current Balance */}
       <div className="mb-6">
         <div className="flex justify-between items-baseline mb-1">
-          <span className="text-gray-400 text-sm">Balance</span>
-          <span className="text-gray-400 text-xs">{supplyPercent.toFixed(6)}% of supply</span>
+          <span className="text-slate-400 text-sm">Balance</span>
+          <span className="text-slate-400 text-xs">{supplyPercent.toFixed(6)}% of supply</span>
         </div>
         <div className="text-2xl font-bold text-white">
           {formatTokenAmount(balance, 2)} {tokenSymbol}
         </div>
-        <div className="text-lg text-purple-400">
+        <div className="text-lg text-emerald-400">
           {formatUsd(currentValue)}
         </div>
       </div>
@@ -224,16 +224,16 @@ export function HoldingsPanel({
       {/* Milestone Projections */}
       {projections.length > 0 && (
         <div className="mb-6">
-          <div className="text-gray-400 text-sm mb-3">If reserve reaches...</div>
+          <div className="text-slate-400 text-sm mb-3">If reserve reaches...</div>
           <div className="space-y-2">
             {projections.slice(0, 4).map(proj => (
               <div
                 key={proj.milestone}
-                className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-2"
+                className="flex items-center justify-between bg-slate-800/50 rounded-lg px-3 py-2"
               >
                 <div>
                   <span className="text-white font-medium">{proj.label}</span>
-                  <span className="text-gray-500 text-xs ml-2">reserve</span>
+                  <span className="text-slate-500 text-xs ml-2">reserve</span>
                 </div>
                 <div className="text-right">
                   <div className="text-white font-medium">{formatUsd(proj.value)}</div>
@@ -248,17 +248,17 @@ export function HoldingsPanel({
       )}
 
       {/* Custom Calculator */}
-      <div className="border-t border-gray-700 pt-4">
-        <div className="text-gray-400 text-sm mb-3">Custom calculator</div>
+      <div className="border-t border-slate-700 pt-4">
+        <div className="text-slate-400 text-sm mb-3">Custom calculator</div>
 
         {/* Mode Toggle */}
-        <div className="flex rounded-lg bg-gray-800 p-1 mb-3">
+        <div className="flex rounded-lg bg-slate-800 p-1 mb-3">
           <button
             onClick={() => { setCalcMode('reserve'); setCustomInput(''); }}
             className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium transition-all ${
               calcMode === 'reserve'
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-400 hover:text-gray-200'
+                ? 'bg-slate-700 text-white'
+                : 'text-slate-400 hover:text-gray-200'
             }`}
           >
             At Reserve
@@ -267,8 +267,8 @@ export function HoldingsPanel({
             onClick={() => { setCalcMode('price'); setCustomInput(''); }}
             className={`flex-1 py-1.5 px-3 rounded-md text-sm font-medium transition-all ${
               calcMode === 'price'
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-400 hover:text-gray-200'
+                ? 'bg-slate-700 text-white'
+                : 'text-slate-400 hover:text-gray-200'
             }`}
           >
             At Price
@@ -277,13 +277,13 @@ export function HoldingsPanel({
 
         {/* Input */}
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-gray-400">$</span>
+          <span className="text-slate-400">$</span>
           <input
             type="number"
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
             placeholder={calcMode === 'reserve' ? 'Enter reserve size' : 'Enter token price'}
-            className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500"
+            className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-emerald-500"
           />
         </div>
 
@@ -308,21 +308,21 @@ export function HoldingsPanel({
           const gainPercent = gain.dividedBy(currentValue).multipliedBy(100);
 
           return (
-            <div className="bg-purple-900/30 border border-purple-800/50 rounded-lg p-3">
+            <div className="bg-emerald-900/30 border border-purple-800/50 rounded-lg p-3">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-gray-400 text-sm">
+                <span className="text-slate-400 text-sm">
                   {calcMode === 'reserve' ? 'At' : 'At price'} {formatUsd(new BigNumber(calcMode === 'reserve' ? targetReserve : inputNum))}
-                  {calcMode === 'reserve' && <span className="text-gray-500 ml-1">reserve</span>}
+                  {calcMode === 'reserve' && <span className="text-slate-500 ml-1">reserve</span>}
                 </span>
               </div>
               <div className="flex justify-between items-baseline">
                 <div>
                   <div className="text-white font-bold text-lg">{formatUsd(valueAtTarget)}</div>
                   {calcMode === 'reserve' && (
-                    <div className="text-gray-400 text-xs">Price: {formatUsd(targetPrice)}</div>
+                    <div className="text-slate-400 text-xs">Price: {formatUsd(targetPrice)}</div>
                   )}
                   {calcMode === 'price' && (
-                    <div className="text-gray-400 text-xs">Reserve: {formatUsd(new BigNumber(targetReserve))}</div>
+                    <div className="text-slate-400 text-xs">Reserve: {formatUsd(new BigNumber(targetReserve))}</div>
                   )}
                 </div>
                 <div className={`text-lg font-semibold ${gainPercent.isGreaterThan(0) ? 'text-green-400' : 'text-red-400'}`}>

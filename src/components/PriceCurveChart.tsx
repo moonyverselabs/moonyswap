@@ -313,18 +313,18 @@ export function PriceCurveChart({
   const isCurrentVisible = currentRes >= reserveRange.min && currentRes <= reserveRange.max;
 
   return (
-    <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h3 className="text-white font-semibold">Price Curve</h3>
-        <div className="flex items-center gap-1 bg-gray-900 rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1">
           {ZOOM_OPTIONS.map(option => (
             <button
               key={option.key}
               onClick={() => setZoom(option.key)}
               className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                 zoom === option.key
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-emerald-600 text-white'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               {option.label}
@@ -538,11 +538,11 @@ export function PriceCurveChart({
       <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-purple-500" />
-            <span className="text-gray-400">Current: {currentReserve.isLessThan(1000) ? `$${currentReserve.toFixed(2)}` : `$${(currentReserve.toNumber() / 1000).toFixed(1)}K`} in reserve</span>
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
+            <span className="text-slate-400">Current: {currentReserve.isLessThan(1000) ? `$${currentReserve.toFixed(2)}` : `$${(currentReserve.toNumber() / 1000).toFixed(1)}K`} in reserve</span>
           </div>
         </div>
-        <div className="text-gray-500">
+        <div className="text-slate-500">
           Hover over curve to see price at any point
         </div>
       </div>

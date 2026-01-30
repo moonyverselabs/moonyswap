@@ -1,28 +1,29 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ReservePanel } from "@/components/ReservePanel";
-import { Suspense } from 'react';
+import { useDiscoverReserves } from '@/hooks/useDiscoverReserves';
+import { formatUsd } from '@/lib/curve';
+import { Footer } from '@/components/Footer';
 
-function HomeContent() {
-  const searchParams = useSearchParams();
-  const tokenMint = searchParams.get('token');
+export default function SwapPage() {
+  const { reserves, loading } = useDiscoverReserves();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900">
+      {/* Construction Banner */}
+      <div className="bg-amber-600 text-black text-center py-2 text-sm font-medium">
+        This site is under construction · Confidential preview
+      </div>
+
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <Link href="/" className="text-xl font-bold text-white hover:text-purple-400 transition-colors">
-              Reserve
-            </Link>
-            <p className="text-sm text-gray-400">Flipcash Reserve Interface</p>
-          </div>
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold text-white hover:text-emerald-400 transition-colors">
+            Moonyswap
+          </Link>
           <Link
             href="/"
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition-colors"
           >
             ← All Tokens
           </Link>
@@ -30,64 +31,78 @@ function HomeContent() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Interact with Any Reserve
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            Buy and sell tokens directly from Flipcash Reserves.
-            Guaranteed liquidity powered by deterministic bonding curves.
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-3">Swap</h1>
+          <p className="text-slate-400">
+            Select a token to swap. You can pay with USDF or any other currency.
           </p>
         </div>
 
-        <ReservePanel tokenKey="jeffy" tokenMint={tokenMint || undefined} />
+        {/* Token List */}
+        <div className="space-y-3">
+          {loading ? (
+            [...Array(3)].map((_, i) => (
+              <div key={i} className="animate-pulse bg-slate-900 rounded-xl p-4 border border-slate-800">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-slate-800" />
+                  <div className="flex-1">
+                    <div className="h-5 w-24 bg-slate-800 rounded mb-2" />
+                    <div className="h-4 w-16 bg-slate-800 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            reserves.map((reserve) => (
+              <Link
+                key={reserve.pool.currencyMint.toString()}
+                href={`/token/${reserve.pool.currencyMint.toString()}`}
+                className="block bg-slate-900 rounded-xl p-4 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/50 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  {reserve.metadata.icon ? (
+                    <img
+                      src={reserve.metadata.icon}
+                      alt={reserve.metadata.symbol}
+                      className="w-12 h-12 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-xl font-bold">
+                      {reserve.metadata.symbol.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold">{reserve.metadata.name}</span>
+                      <span className="text-slate-500 text-sm">{reserve.metadata.symbol}</span>
+                    </div>
+                    <div className="text-slate-400 text-sm">
+                      {reserve.currentPriceFormatted} · Reserve: {reserve.reserveBalanceFormatted}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-emerald-400 text-sm font-medium">Swap →</div>
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
 
-        {/* Info Section */}
-        <div className="mt-12 max-w-md mx-auto">
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="font-semibold text-white mb-3">How it works</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400">•</span>
-                <span>Prices follow a deterministic exponential curve from $0.01 to $1,000,000</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400">•</span>
-                <span>Buy with USDF to release tokens from the reserve</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400">•</span>
-                <span>Sell back to the reserve anytime (1% fee)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-purple-400">•</span>
-                <span>All trades execute atomically onchain</span>
-              </li>
-            </ul>
-          </div>
+        {/* Info */}
+        <div className="mt-8 bg-slate-900/50 rounded-xl p-5 border border-slate-800">
+          <h3 className="font-semibold text-white text-sm mb-2">How swaps work</h3>
+          <ul className="space-y-1 text-sm text-slate-400">
+            <li>• Pay with USDF for direct swaps (no routing fee)</li>
+            <li>• Pay with any currency - routes through USDF (1% sell fee)</li>
+            <li>• Sell to USDF or any other currency</li>
+            <li>• All swaps have guaranteed liquidity from reserves</li>
+          </ul>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-gray-500">
-          <p>Open source interface for Flipcash Reserves</p>
-          <p className="mt-1">Not affiliated with Flipcash Inc.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
-      <HomeContent />
-    </Suspense>
   );
 }

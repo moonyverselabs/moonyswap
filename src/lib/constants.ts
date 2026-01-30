@@ -61,7 +61,11 @@ export const BUY_FEE_BPS = 33;
 // Check if a mint is exempt from buy fees (MNY is exempt)
 export function isFeeExempt(mint: PublicKey | string): boolean {
   const mintStr = typeof mint === 'string' ? mint : mint.toString();
-  return mintStr === MNY_RESERVE.mint.toString();
+  // Check real MNY mint
+  if (mintStr === MNY_RESERVE.mint.toString()) return true;
+  // Check mock MNY mint when enabled
+  if (MOCK_MNY.enabled && mintStr === MOCK_MNY.mockMint) return true;
+  return false;
 }
 
 // Fee treasury wallet - collects USDF fees before MNY buyback
