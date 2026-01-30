@@ -6,6 +6,7 @@ import { useDiscoverReserves } from '@/hooks/useDiscoverReserves';
 import { useReserveByMint } from '@/hooks/useReserveByMint';
 import { formatTokenAmount, getSpotPrice, getTokenCost } from '@/lib/curve';
 import { MOCK_MNY } from '@/lib/constants';
+import { ReservePanel } from '@/components/ReservePanel';
 
 // Helper: find supply at a given reserve
 function supplyAtReserve(targetReserve: number): number {
@@ -253,32 +254,9 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Right: Key Metrics */}
-            <div className="w-full lg:w-auto">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Total Locked</div>
-                  <div className="text-xl font-semibold text-white">
-                    {loading ? '—' : `$${reserves.reduce((sum, r) => sum + r.reserveBalance.toNumber(), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  </div>
-                  <div className="text-xs text-green-400 mt-1">In reserves</div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Markets</div>
-                  <div className="text-xl font-semibold text-white">{loading ? '—' : reserves.length}</div>
-                  <div className="text-xs text-slate-500 mt-1">Live currencies</div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Network</div>
-                  <div className="text-xl font-semibold text-white">Solana</div>
-                  <div className="text-xs text-slate-500 mt-1">~400ms finality</div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Liquidity</div>
-                  <div className="text-xl font-semibold text-white">100%</div>
-                  <div className="text-xs text-slate-500 mt-1">Always available</div>
-                </div>
-              </div>
+            {/* Right: Swap UI */}
+            <div className="w-full lg:w-96">
+              <ReservePanel />
             </div>
           </div>
         </div>
