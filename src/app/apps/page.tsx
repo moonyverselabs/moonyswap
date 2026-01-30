@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { EXAMPLE_APPS, CATEGORY_LABELS, CATEGORY_COLORS, App } from '@/lib/apps';
 import { Footer } from '@/components/Footer';
+
+const CATEGORIES: (App['category'] | 'all')[] = ['all', 'game', 'platform', 'marketplace', 'tool', 'social'];
 
 function AppCard({ app }: { app: App }) {
   const isExample = app.status === 'example';
@@ -47,6 +50,12 @@ function AppCard({ app }: { app: App }) {
 }
 
 export default function AppsPage() {
+  const [selectedCategory, setSelectedCategory] = useState<App['category'] | 'all'>('all');
+
+  const filteredApps = selectedCategory === 'all'
+    ? EXAMPLE_APPS
+    : EXAMPLE_APPS.filter(app => app.category === selectedCategory);
+
   return (
     <div className="min-h-screen bg-slate-950">
       {/* Construction Banner */}
@@ -115,16 +124,38 @@ export default function AppsPage() {
 
       {/* Apps Grid */}
       <main className="max-w-5xl mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h2 className="text-xl font-semibold text-white">App Ecosystem</h2>
-          <span className="text-slate-500 text-sm">{EXAMPLE_APPS.length} examples</span>
+
+          {/* Category Filters */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
+            {CATEGORIES.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                {category === 'all' ? 'All' : CATEGORY_LABELS[category]}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Example Apps */}
+        {/* Filtered Apps */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {EXAMPLE_APPS.map((app) => (
-            <AppCard key={app.id} app={app} />
-          ))}
+          {filteredApps.length > 0 ? (
+            filteredApps.map((app) => (
+              <AppCard key={app.id} app={app} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-slate-500">No apps in this category yet</p>
+            </div>
+          )}
         </div>
 
         {/* CTA Section */}
