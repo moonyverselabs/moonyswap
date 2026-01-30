@@ -100,14 +100,14 @@ export default function AppsPage() {
               <p className="text-slate-500 text-sm">Drop-in SDK for any app or game</p>
             </div>
             <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
-              <div className="text-2xl mb-2">💧</div>
-              <h3 className="text-white font-medium mb-1">Instant Liquidity</h3>
-              <p className="text-slate-500 text-sm">Every currency is always tradeable</p>
-            </div>
-            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
               <div className="text-2xl mb-2">🌐</div>
               <h3 className="text-white font-medium mb-1">Any Currency</h3>
               <p className="text-slate-500 text-sm">Accept any Flipcash currency</p>
+            </div>
+            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
+              <div className="text-2xl mb-2">💧</div>
+              <h3 className="text-white font-medium mb-1">Instant Liquidity</h3>
+              <p className="text-slate-500 text-sm">Every currency is always tradeable</p>
             </div>
           </div>
         </div>
