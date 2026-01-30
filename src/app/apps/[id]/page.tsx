@@ -78,7 +78,7 @@ export default function AppDetailPage({ params }: PageProps) {
             {/* Info */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-white">{app.name}</h1>
+                <h1 className="text-2xl font-bold text-moony-gradient">{app.name}</h1>
                 {isExample && (
                   <span className="text-xs bg-[#2a2a30] text-[#a0a0a8] px-2 py-1 rounded">
                     Example App
@@ -143,7 +143,7 @@ export default function AppDetailPage({ params }: PageProps) {
 
         {/* How It Works */}
         <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl p-8 mb-8">
-          <h2 className="text-lg font-semibold text-white mb-6">How Flipcash Integration Works</h2>
+          <h2 className="text-lg font-semibold text-moony-gradient mb-6">How Flipcash Integration Works</h2>
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="w-12 h-12 rounded-full bg-[#D8C5FD]/10 text-[#D8C5FD] flex items-center justify-center mx-auto mb-3 text-xl font-bold">

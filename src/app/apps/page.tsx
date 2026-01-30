@@ -92,7 +92,7 @@ export default function AppsPage() {
             <span className="text-[#D8C5FD] text-sm font-medium">Flipcash SDK Coming Soon</span>
           </div>
 
-          <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+          <h1 className="text-3xl lg:text-4xl font-bold text-moony-gradient mb-4">
             Explore Use Cases
           </h1>
           <p className="text-[#a0a0a8] max-w-2xl mx-auto text-lg leading-relaxed mb-8">
@@ -125,7 +125,7 @@ export default function AppsPage() {
       {/* Apps Grid */}
       <main className="max-w-5xl mx-auto px-4 py-10">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <h2 className="text-xl font-semibold text-white">App Ecosystem</h2>
+          <h2 className="text-xl font-semibold text-moony-gradient">App Ecosystem</h2>
 
           {/* Category Filters */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -160,7 +160,7 @@ export default function AppsPage() {
 
         {/* CTA Section */}
         <div className="bg-gradient-to-br from-[#D8C5FD]/10 to-[#141418] border border-[#D8C5FD]/20 rounded-2xl p-8 text-center">
-          <h3 className="text-xl font-semibold text-white mb-2">Build with Flipcash</h3>
+          <h3 className="text-xl font-semibold text-moony-gradient mb-2">Build with Flipcash</h3>
           <p className="text-[#a0a0a8] mb-6 max-w-lg mx-auto">
             Be among the first developers to integrate programmable currencies into your app.
             Join the waitlist for early SDK access.

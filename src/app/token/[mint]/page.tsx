@@ -118,7 +118,7 @@ export default function TokenProfilePage({ params }: PageProps) {
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-white">{reserve.name}</h1>
+            <h1 className="text-2xl font-bold text-moony-gradient">{reserve.name}</h1>
             <p className="text-[#a0a0a8] text-sm">{reserve.symbol}</p>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function TokenProfilePage({ params }: PageProps) {
 
             {/* Token Info */}
             <div className="bg-[#141418] rounded-xl p-5 border border-[#2a2a30]">
-              <h3 className="text-white font-semibold text-sm mb-3">Token Info</h3>
+              <h3 className="text-moony-gradient font-semibold text-sm mb-3">Token Info</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-[#707078]">Mint</span>

@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10">
           {/* Brand */}
           <div>
-            <h3 className="text-white font-semibold mb-2">Moonyswap</h3>
+            <h3 className="text-moony-gradient font-semibold mb-2">Moonyswap</h3>
             <p className="text-[#a0a0a8] text-sm">
               Decentralized currency exchange powered by Flipcash Protocol.
             </p>

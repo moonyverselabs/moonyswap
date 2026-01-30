@@ -324,7 +324,7 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
     <div className="bg-[#141418] rounded-xl p-5 border border-[#2a2a30]">
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-white font-semibold">Swap</h3>
+        <h3 className="text-moony-gradient font-semibold">Swap</h3>
       </div>
 
       {/* Input (You pay) - USD denominated */}
