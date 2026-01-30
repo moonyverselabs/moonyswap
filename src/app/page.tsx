@@ -249,9 +249,18 @@ export default function HomePage() {
                 Your gateway to
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500"> digital economies</span>
               </h2>
-              <p className="text-slate-400 max-w-lg leading-relaxed text-justify">
+              <p className="text-slate-400 max-w-lg leading-relaxed text-justify mb-5">
                 Programmable currencies secured by Proof of Capital. Transparent on-chain reserves with guaranteed liquidity. Powered by Flipcash Protocol.
               </p>
+              <Link
+                href="/apps"
+                className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+              >
+                Discover where to use these currencies
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
 
             {/* Right: Swap UI */}
