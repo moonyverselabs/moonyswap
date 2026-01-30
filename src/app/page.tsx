@@ -252,15 +252,15 @@ export default function HomePage() {
               <p className="text-slate-400 max-w-lg leading-relaxed text-justify mb-5">
                 Programmable currencies secured by Proof of Capital. Transparent on-chain reserves with guaranteed liquidity. Powered by Flipcash Protocol.
               </p>
-              <Link
-                href="/apps"
-                className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
-              >
-                Discover where to use these currencies
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/apps"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors"
+                >
+                  Explore Apps
+                </Link>
+                <span className="text-slate-500 text-sm">Spend currencies across the ecosystem</span>
+              </div>
             </div>
 
             {/* Right: Swap UI */}
