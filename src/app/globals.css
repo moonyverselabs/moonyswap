@@ -35,39 +35,40 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Moony gradient utilities */
-.bg-moony-gradient {
-  background: linear-gradient(to bottom, var(--moony-purple), var(--moony-cream));
-}
+/* Moony gradient utilities - using @layer for proper Tailwind integration */
+@layer utilities {
+  .bg-moony-gradient {
+    background: linear-gradient(to bottom, #D8C5FD, #FFF2D9) !important;
+  }
 
-.text-moony-gradient {
-  background: linear-gradient(to right, var(--moony-purple), var(--moony-cream));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+  .text-moony-gradient {
+    background: linear-gradient(to right, #D8C5FD, #FFF2D9) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    color: transparent !important;
+  }
 
-.border-moony-gradient {
-  border-image: linear-gradient(to right, var(--moony-purple), var(--moony-cream)) 1;
-}
+  .border-moony-gradient {
+    border-image: linear-gradient(to right, #D8C5FD, #FFF2D9) 1 !important;
+  }
 
-/* Button with gradient */
-.btn-moony {
-  background: linear-gradient(135deg, var(--moony-purple), var(--moony-cream));
-  color: #0c0c0f;
-  font-weight: 600;
-}
+  .btn-moony {
+    background: linear-gradient(135deg, #D8C5FD, #FFF2D9) !important;
+    color: #0c0c0f !important;
+    font-weight: 600 !important;
+  }
 
-.btn-moony:hover {
-  background: linear-gradient(135deg, var(--moony-purple-dim), var(--moony-cream-dim));
-}
+  .btn-moony:hover {
+    background: linear-gradient(135deg, #B8A5DD, #DFD2B9) !important;
+  }
 
-/* Subtle page gradient overlay */
-.bg-moony-subtle {
-  background:
-    radial-gradient(ellipse at top left, rgba(216, 197, 253, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(255, 242, 217, 0.05) 0%, transparent 50%),
-    var(--background);
+  .bg-moony-subtle {
+    background:
+      radial-gradient(ellipse at top left, rgba(216, 197, 253, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(255, 242, 217, 0.08) 0%, transparent 50%),
+      #0c0c0f !important;
+  }
 }
 
 /* Hide scrollbar but allow scrolling */
