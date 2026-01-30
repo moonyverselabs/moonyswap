@@ -106,8 +106,8 @@ export default function AppsPage() {
             </div>
             <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4">
               <div className="text-2xl mb-2">💧</div>
-              <h3 className="text-white font-medium mb-1">Instant Liquidity</h3>
-              <p className="text-slate-500 text-sm">Every currency is always tradeable</p>
+              <h3 className="text-white font-medium mb-1">Instant Redemption</h3>
+              <p className="text-slate-500 text-sm">Any currency redeemable to USDF</p>
             </div>
           </div>
         </div>
