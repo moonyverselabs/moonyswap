@@ -35,6 +35,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Ensure pointer cursor on all interactive elements */
+a, button, [role="button"], input[type="submit"], input[type="button"] {
+  cursor: pointer;
+}
+
 /* Static film grain overlay */
 body::before {
   content: "";

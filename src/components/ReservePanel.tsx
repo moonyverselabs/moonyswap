@@ -488,32 +488,6 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
           >
             Connect Wallet
           </button>
-          {/* Supported wallets */}
-          <div className="mt-4 pt-4 border-t border-[#2a2a30]">
-            <div className="flex items-center justify-center gap-2 text-xs text-[#707078]">
-              <span>Works with</span>
-              <div className="flex items-center gap-2">
-                {/* Phantom */}
-                <svg className="w-4 h-4" viewBox="0 0 128 128" fill="none" title="Phantom">
-                  <circle cx="64" cy="64" r="64" fill="url(#phantom-grad)"/>
-                  <path d="M110.5 64.6c0-1.3-.2-2.5-.5-3.7-2.5-12-17.5-21-35.5-21-20.5 0-37.3 11.8-37.3 26.3 0 8.2 5.3 15.6 13.7 20.5-1.2 3.5-3 6.5-5.3 9-.8.9-.2 2.3 1 2.3 5.8-.2 11.3-2 15.8-5 3.5.8 7.2 1.2 11 1.2 20.6 0 37.4-11.8 37.4-26.3 0-1.1 0-2.2-.3-3.3zm-61.3 6.6c-3.3 0-6-3.2-6-7s2.7-7 6-7 6 3.2 6 7-2.7 7-6 7zm24 0c-3.3 0-6-3.2-6-7s2.7-7 6-7 6 3.2 6 7-2.7 7-6 7z" fill="#fff"/>
-                  <defs><linearGradient id="phantom-grad" x1="0" y1="0" x2="128" y2="128"><stop stopColor="#534BB1"/><stop offset="1" stopColor="#551BF9"/></linearGradient></defs>
-                </svg>
-                {/* Solflare */}
-                <svg className="w-4 h-4" viewBox="0 0 101 88" fill="none" title="Solflare">
-                  <path d="M100.5 44c0 24.3-22.4 44-50 44S.5 68.3.5 44 22.9 0 50.5 0s50 19.7 50 44z" fill="url(#solflare-grad)"/>
-                  <path d="M50.5 14.7L26.2 58.8h48.6L50.5 14.7z" fill="#fff"/>
-                  <defs><linearGradient id="solflare-grad" x1="0" y1="0" x2="101" y2="88"><stop stopColor="#FCC00A"/><stop offset="1" stopColor="#FC7B0A"/></linearGradient></defs>
-                </svg>
-                {/* Backpack */}
-                <svg className="w-4 h-4" viewBox="0 0 56 56" fill="none" title="Backpack">
-                  <rect width="56" height="56" rx="12" fill="#E33E3F"/>
-                  <path fillRule="evenodd" clipRule="evenodd" d="M28 12c-4.4 0-8 3.6-8 8v2h-4c-1.1 0-2 .9-2 2v16c0 3.3 2.7 6 6 6h16c3.3 0 6-2.7 6-6V24c0-1.1-.9-2-2-2h-4v-2c0-4.4-3.6-8-8-8zm-4 10v-2c0-2.2 1.8-4 4-4s4 1.8 4 4v2h-8zm-2 10c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v2c0 1.1-.9 2-2 2h-8c-1.1 0-2-.9-2-2v-2z" fill="#fff"/>
-                </svg>
-              </div>
-              <span>+ more</span>
-            </div>
-          </div>
         </div>
       ) : (
         <button
@@ -540,8 +514,7 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
       )}
 
       {/* Coinbase Onramp - Need USDC? */}
-      {inputToken.type === 'usdf' && (
-        <div className="mt-4 pt-4 border-t border-[#2a2a30]">
+      <div className="mt-4 pt-4 border-t border-[#2a2a30]">
           <button
             onClick={handleCoinbaseOnramp}
             disabled={coinbaseLoading}
@@ -560,7 +533,6 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
             {coinbaseLoading ? 'Opening Coinbase...' : 'Need USDC? Buy with Coinbase'}
           </button>
         </div>
-      )}
     </div>
   );
 }

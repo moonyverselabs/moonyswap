@@ -11,6 +11,7 @@ import { MOCK_MNY } from '@/lib/constants';
 import { isMockToken, getMockGradient } from '@/lib/mockTokens';
 import { ReservePanel } from '@/components/ReservePanel';
 import { Footer } from '@/components/Footer';
+import { usePriceChanges, formatPriceChange, getPriceChangeClass } from '@/hooks/usePriceChanges';
 
 // Helper: find supply at a given reserve
 function supplyAtReserve(targetReserve: number): number {
@@ -56,6 +57,8 @@ export default function HomePage() {
   const [search, setSearch] = useState('');
   const [searchMint, setSearchMint] = useState('');
   const [showWalletMenu, setShowWalletMenu] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const { priceChanges } = usePriceChanges();
 
   // Format wallet address for display
   const formatAddress = (address: string) => {
@@ -71,6 +74,24 @@ export default function HomePage() {
       setSearchMint('');
     }
   }, [search]);
+
+  // Hint animation for carousel - subtle peek to show it's scrollable
+  const [hasHinted, setHasHinted] = useState(false);
+  useEffect(() => {
+    if (!hasHinted) {
+      const timer = setTimeout(() => {
+        const container = document.getElementById('info-carousel');
+        if (container) {
+          container.scrollTo({ left: 40, behavior: 'smooth' });
+          setTimeout(() => {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+            setHasHinted(true);
+          }, 300);
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasHinted]);
 
   // Fetch token by mint if address detected
   const searchedToken = useReserveByMint(searchMint);
@@ -289,9 +310,16 @@ export default function HomePage() {
                         )}
                         <span className="text-white text-sm font-medium">{item.reserve.metadata.symbol}</span>
                         <span className="text-[#a0a0a8] text-sm">{item.reserve.currentPriceFormatted}</span>
-                        {milestone && (
-                          <span className="text-green-400 text-xs font-medium">+{milestone.gain.toFixed(0)}%</span>
-                        )}
+                        {(() => {
+                          const mintStr = item.reserve.pool.currencyMint.toString();
+                          const change = priceChanges[mintStr]?.change24h;
+                          if (change === undefined || change === null) return null;
+                          return (
+                            <span className={`text-xs font-medium ${getPriceChangeClass(change)}`}>
+                              {formatPriceChange(change)}
+                            </span>
+                          );
+                        })()}
                       </Link>
                     );
                   });
@@ -327,12 +355,12 @@ export default function HomePage() {
           <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* Left: Branding & Copy */}
             <div className="flex-1 text-center lg:text-left">
-              <p className="text-sm text-[#a0a0a8] uppercase tracking-widest mb-3">Decentralized Currency Exchange</p>
-              <h2 className="text-3xl lg:text-4xl font-bold text-moony-gradient mb-4 leading-tight">
-                Your gateway to digital economies
+              <p className="text-sm text-[#a0a0a8] uppercase tracking-widest mb-3">Powered by Flipcash Protocol</p>
+              <h2 className="text-3xl lg:text-4xl font-bold text-moony-gradient mb-4 leading-tight flex items-center justify-center lg:justify-start gap-3">
+                Trade <img src="/flipcash.jpg" alt="Flipcash" className="w-9 h-9 lg:w-10 lg:h-10 rounded-lg inline-block" /> Flipcash currencies
               </h2>
-              <p className="text-[#a0a0a8] max-w-lg leading-relaxed text-justify">
-                Programmable currencies secured by Proof of Capital. Transparent on-chain reserves with guaranteed liquidity. Powered by Flipcash Protocol.
+              <p className="text-[#a0a0a8] max-w-lg leading-relaxed">
+                Connect your favorite Solana wallet and trade directly with onchain reserves, powered by Proof of Capital.
               </p>
             </div>
 
@@ -445,10 +473,10 @@ export default function HomePage() {
                       {milestone && (
                         <div className="text-right">
                           <div className="text-green-400 font-semibold">
-                            +{milestone.gain.toFixed(0)}%
+                            +{milestone.gain.toFixed(0)}% gains
                           </div>
-                          <div className="text-[#707078] text-xs">
-                            to {milestone.label}
+                          <div className="text-[#707078] text-xs whitespace-nowrap">
+                            until {milestone.label} in {reserve.metadata.symbol} reserve
                           </div>
                         </div>
                       )}
@@ -485,66 +513,212 @@ export default function HomePage() {
 
       </main>
 
-      {/* Protocol Stats Section */}
-      <section className="border-t border-[#2a2a30] bg-[#0c0c0f]">
-        <div className="max-w-5xl mx-auto px-4 py-20">
-          <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
-            {/* Left: Copy */}
-            <div className="flex-1">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
-                Proof of Capital.<br />
-                Always liquid.
-              </h2>
-              <p className="text-[#a0a0a8] text-lg mb-4 leading-relaxed">
-                Every currency on Moonyswap is backed by transparent on-chain reserves. No order books, no counterparty risk.
-              </p>
-              <p className="text-[#a0a0a8] text-lg mb-8 leading-relaxed">
-                Buy and sell instantly at mathematically-determined prices. Your liquidity is guaranteed by the protocol.
-              </p>
-              <Link
-                href="/apps"
-                className="inline-flex items-center gap-2 text-white font-medium hover:text-[#D8C5FD] transition-colors"
-              >
-                Explore the ecosystem
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
+      {/* Protocol Info Carousel */}
+      <section className="border-t border-[#2a2a30] bg-[#0c0c0f] relative">
+        {/* Left Arrow */}
+        <button
+          onClick={() => {
+            const container = document.getElementById('info-carousel');
+            if (container) container.scrollTo({ left: 0, behavior: 'smooth' });
+          }}
+          className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#1a1a1f] border border-[#2a2a30] flex items-center justify-center text-[#a0a0a8] hover:text-white hover:border-[#D8C5FD]/50 transition-all hidden lg:flex ${activeSlide === 0 ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
 
-            {/* Right: Stats Panel */}
-            <div className="w-full lg:w-auto">
-              <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl overflow-hidden">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-[#2a2a30] flex items-center gap-2">
-                  <img src="/flipcash.jpg" alt="Flipcash" className="w-5 h-5 rounded" />
-                  <span className="text-[#D8C5FD] font-medium">Flipcash Protocol Stats</span>
-                </div>
+        {/* Right Arrow */}
+        <button
+          onClick={() => {
+            const container = document.getElementById('info-carousel');
+            if (container) container.scrollTo({ left: container.offsetWidth, behavior: 'smooth' });
+          }}
+          className={`absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#1a1a1f] border border-[#2a2a30] flex items-center justify-center text-[#a0a0a8] hover:text-white hover:border-[#D8C5FD]/50 transition-all hidden lg:flex ${activeSlide === 1 ? 'opacity-30 cursor-default' : 'opacity-100'}`}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2">
-                  <div className="px-6 py-6 border-r border-b border-[#2a2a30]">
-                    <p className="text-[#a0a0a8] text-sm mb-2">Total Value Locked</p>
-                    <p className="text-white text-3xl font-bold">
-                      {loading ? '...' : `$${(reserves.reduce((sum, r) => sum + r.reserveBalance.toNumber(), 0)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+        <div className="max-w-5xl mx-auto py-20">
+          <div className="relative">
+            {/* Scrollable Container */}
+            <div
+              id="info-carousel"
+              className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-8 px-4"
+              onScroll={(e) => {
+                const container = e.currentTarget;
+                const scrollPos = container.scrollLeft;
+                const slideWidth = container.offsetWidth;
+                setActiveSlide(Math.round(scrollPos / slideWidth));
+              }}
+            >
+              {/* Slide 1: Proof of Capital */}
+              <div className="w-full flex-shrink-0 snap-center">
+                <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
+                  <div className="flex-1">
+                    <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
+                      Proof of Capital.<br />
+                      Always liquid.
+                    </h2>
+                    <p className="text-[#a0a0a8] text-lg mb-4 leading-relaxed">
+                      Every currency on Moonyswap is backed by transparent onchain reserves. No order books, no counterparty risk.
                     </p>
-                  </div>
-                  <div className="px-6 py-6 border-b border-[#2a2a30]">
-                    <p className="text-[#a0a0a8] text-sm mb-2">Currencies</p>
-                    <p className="text-white text-3xl font-bold">
-                      {loading ? '...' : reserves.length}
+                    <p className="text-[#a0a0a8] text-lg mb-8 leading-relaxed">
+                      Buy and sell instantly at mathematically-determined prices. Your liquidity is guaranteed by the protocol.
                     </p>
+                    <Link
+                      href="/apps"
+                      className="inline-flex items-center gap-2 text-white font-medium hover:text-[#D8C5FD] transition-colors"
+                    >
+                      Explore the ecosystem
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
                   </div>
-                  <div className="px-6 py-6 border-r border-[#2a2a30]">
-                    <p className="text-[#a0a0a8] text-sm mb-2">Protocol Fee</p>
-                    <p className="text-white text-3xl font-bold">1%</p>
-                  </div>
-                  <div className="px-6 py-6">
-                    <p className="text-green-400 text-sm mb-2">Guaranteed Liquidity</p>
-                    <p className="text-green-400 text-3xl font-bold">100%</p>
+                  <div className="w-full lg:w-auto">
+                    <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl overflow-hidden">
+                      <div className="px-6 py-4 border-b border-[#2a2a30] flex items-center gap-2">
+                        <img src="/flipcash.jpg" alt="Flipcash" className="w-5 h-5 rounded" />
+                        <span className="text-[#D8C5FD] font-medium">Flipcash Protocol Stats</span>
+                      </div>
+                      <div className="grid grid-cols-2">
+                        <div className="px-6 py-6 border-r border-b border-[#2a2a30]">
+                          <p className="text-[#a0a0a8] text-sm mb-2">Total Value Locked</p>
+                          <p className="text-white text-3xl font-bold">
+                            {loading ? '...' : `$${(reserves.reduce((sum, r) => sum + r.reserveBalance.toNumber(), 0)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                          </p>
+                        </div>
+                        <div className="px-6 py-6 border-b border-[#2a2a30]">
+                          <p className="text-[#a0a0a8] text-sm mb-2">Currencies</p>
+                          <p className="text-white text-3xl font-bold">
+                            {loading ? '...' : reserves.length}
+                          </p>
+                        </div>
+                        <div className="px-6 py-6 border-r border-[#2a2a30]">
+                          <p className="text-[#a0a0a8] text-sm mb-2">Protocol Fee</p>
+                          <p className="text-white text-3xl font-bold">1%</p>
+                        </div>
+                        <div className="px-6 py-6">
+                          <p className="text-green-400 text-sm mb-2">Guaranteed Liquidity</p>
+                          <p className="text-green-400 text-3xl font-bold">100%</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Slide 2: Pricing Curve */}
+              <div className="w-full flex-shrink-0 snap-center">
+                <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
+                  <div className="flex-1">
+                    <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
+                      The Pricing Curve.<br />
+                      Price grows with demand.
+                    </h2>
+                    <p className="text-[#a0a0a8] text-lg mb-4 leading-relaxed">
+                      Flipcash currencies use a pricing curve that mathematically links price to supply. As more tokens are purchased, the price rises predictably.
+                    </p>
+                    <p className="text-[#a0a0a8] text-lg mb-8 leading-relaxed">
+                      Early supporters benefit as adoption grows. Every purchase adds to the reserve, increasing the value for all holders.
+                    </p>
+                    <a
+                      href="https://docs.moony.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-white font-medium hover:text-[#D8C5FD] transition-colors"
+                    >
+                      Learn how it works
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+                  <div className="w-full lg:w-auto">
+                    <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl overflow-hidden p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <img src="/flipcash.jpg" alt="Flipcash" className="w-5 h-5 rounded" />
+                        <span className="text-[#D8C5FD] font-medium">Price vs Supply</span>
+                      </div>
+                      {/* Stylized Pricing Curve Graph */}
+                      <div className="relative">
+                        <svg viewBox="0 0 280 200" className="w-full h-auto">
+                          <defs>
+                            <linearGradient id="curveGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#D8C5FD" />
+                              <stop offset="100%" stopColor="#FFF2D9" />
+                            </linearGradient>
+                            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor="#D8C5FD" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="#D8C5FD" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Grid lines */}
+                          <g stroke="#2a2a30" strokeWidth="1">
+                            <line x1="40" y1="40" x2="40" y2="170" />
+                            <line x1="40" y1="170" x2="260" y2="170" />
+                            {/* Horizontal grid */}
+                            <line x1="40" y1="130" x2="260" y2="130" strokeDasharray="4" opacity="0.3" />
+                            <line x1="40" y1="90" x2="260" y2="90" strokeDasharray="4" opacity="0.3" />
+                            <line x1="40" y1="50" x2="260" y2="50" strokeDasharray="4" opacity="0.3" />
+                          </g>
+
+                          {/* Area under curve */}
+                          <path
+                            d="M40,170 Q80,168 120,160 T180,120 T240,50 L240,170 Z"
+                            fill="url(#areaGradient)"
+                          />
+
+                          {/* Exponential curve */}
+                          <path
+                            d="M40,168 Q80,166 120,158 T180,118 T240,48"
+                            fill="none"
+                            stroke="url(#curveGradient)"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          />
+
+                          {/* Dot on curve */}
+                          <circle cx="180" cy="118" r="6" fill="#FFF2D9" />
+                          <circle cx="180" cy="118" r="3" fill="#0c0c0f" />
+
+                          {/* Labels */}
+                          <text x="150" y="190" fill="#707078" fontSize="11" textAnchor="middle">Supply</text>
+                          <text x="20" y="105" fill="#707078" fontSize="11" textAnchor="middle" transform="rotate(-90, 20, 105)">Price</text>
+                        </svg>
+
+                        {/* Annotation */}
+                        <div className="absolute top-4 right-4 bg-[#1a1a1f] border border-[#2a2a30] rounded-lg px-3 py-2">
+                          <p className="text-green-400 text-sm font-medium">+{Math.floor(Math.random() * 50 + 100)}%</p>
+                          <p className="text-[#707078] text-xs">to $100K reserve</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Slide Indicators */}
+            <div className="flex justify-center gap-3 mt-10">
+              <button
+                onClick={() => {
+                  const container = document.getElementById('info-carousel');
+                  if (container) container.scrollTo({ left: 0, behavior: 'smooth' });
+                }}
+                className={`h-3 rounded-full transition-all ${activeSlide === 0 ? 'bg-[#D8C5FD] w-10' : 'bg-[#2a2a30] hover:bg-[#3a3a40] w-3'}`}
+              />
+              <button
+                onClick={() => {
+                  const container = document.getElementById('info-carousel');
+                  if (container) container.scrollTo({ left: container.offsetWidth, behavior: 'smooth' });
+                }}
+                className={`h-3 rounded-full transition-all ${activeSlide === 1 ? 'bg-[#D8C5FD] w-10' : 'bg-[#2a2a30] hover:bg-[#3a3a40] w-3'}`}
+              />
             </div>
           </div>
         </div>
