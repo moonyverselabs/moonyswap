@@ -7,7 +7,7 @@ const COINBASE_APP_ID = process.env.NEXT_PUBLIC_COINBASE_APP_ID || '';
 
 // Handle PEM key - Vercel may escape newlines as \n
 function formatPemKey(key: string): string {
-  return key.replace(/\\n/g, '\n');
+  return key.replace(/\\n/g, '\n').trim();
 }
 
 export async function POST(request: NextRequest) {
@@ -85,13 +85,17 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating Coinbase session:', error);
     const formattedSecret = formatPemKey(COINBASE_API_SECRET);
+    const lines = formattedSecret.split('\n');
     return NextResponse.json(
       {
         error: 'Internal server error',
         details: String(error),
         keyDebug: {
-          startsWithBegin: formattedSecret.startsWith('-----BEGIN'),
-          containsNewlines: formattedSecret.includes('\n'),
+          startsWithBegin: formattedSecret.startsWith('-----BEGIN EC PRIVATE KEY-----'),
+          endsWithEnd: formattedSecret.endsWith('-----END EC PRIVATE KEY-----'),
+          lineCount: lines.length,
+          firstLine: lines[0],
+          lastLine: lines[lines.length - 1],
           length: formattedSecret.length,
         }
       },
