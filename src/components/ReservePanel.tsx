@@ -517,8 +517,9 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
                 <circle cx="12" cy="12" r="10" strokeWidth="2" strokeDasharray="32" strokeLinecap="round" />
               </svg>
             ) : (
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+              <svg className="w-4 h-4" viewBox="0 0 1024 1024" fill="none">
+                <circle cx="512" cy="512" r="512" fill="#0052FF"/>
+                <path d="M512 692c-99.4 0-180-80.6-180-180s80.6-180 180-180c89.1 0 163.1 65 177.3 150h181.7c-15.3-184.8-170-330-358.9-330-199.1 0-360 160.9-360 360s160.9 360 360 360c188.9 0 343.6-145.2 358.9-330H689.3c-14.2 85-88.2 150-177.3 150z" fill="white"/>
               </svg>
             )}
             {coinbaseLoading ? 'Opening Coinbase...' : 'Need USDC? Buy with Coinbase'}
