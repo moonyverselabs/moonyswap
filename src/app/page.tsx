@@ -255,8 +255,39 @@ export default function HomePage() {
       )}
 
       {/* Hero Section */}
-      <section className="border-b border-[#2a2a30]">
-        <div className="max-w-5xl mx-auto px-4 py-12">
+      <section className="border-b border-[#2a2a30] relative overflow-hidden">
+        {/* Floating blurred token icons */}
+        <div className="absolute inset-0 pointer-events-none hidden lg:block">
+          <img
+            src="/tokens/volt.svg"
+            alt=""
+            className="absolute top-8 left-[8%] w-16 h-16 opacity-30 blur-[2px] animate-float"
+          />
+          <img
+            src="/tokens/nova.svg"
+            alt=""
+            className="absolute bottom-12 left-[15%] w-12 h-12 opacity-25 blur-[3px] animate-float-slow"
+          />
+          <img
+            src="/tokens/apex.svg"
+            alt=""
+            className="absolute top-20 left-[25%] w-10 h-10 opacity-20 blur-[2px] animate-float-reverse"
+          />
+          <img
+            src="/tokens/phnx.svg"
+            alt=""
+            className="absolute bottom-8 left-[5%] w-14 h-14 opacity-20 blur-[4px] animate-float"
+            style={{ animationDelay: '1s' }}
+          />
+          <img
+            src="/tokens/cosm.svg"
+            alt=""
+            className="absolute top-16 left-[35%] w-8 h-8 opacity-15 blur-[3px] animate-float-slow"
+            style={{ animationDelay: '2s' }}
+          />
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 py-12 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* Left: Branding & Copy */}
             <div className="flex-1 text-center lg:text-left">
