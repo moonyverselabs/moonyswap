@@ -218,6 +218,10 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
   // Open Coinbase Onramp with secure session
   const handleCoinbaseOnramp = async () => {
     setCoinbaseLoading(true);
+
+    // Open window immediately to avoid popup blocker (must be in direct click context)
+    const popup = window.open('about:blank', '_blank');
+
     try {
       const response = await fetch('/api/coinbase-session', {
         method: 'POST',
@@ -232,11 +236,22 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
       }
 
       const data = await response.json();
-      window.open(data.url, '_blank', 'noopener,noreferrer');
+
+      // Navigate the already-opened popup to the Coinbase URL
+      if (popup) {
+        popup.location.href = data.url;
+      } else {
+        // Fallback if popup was still blocked
+        window.location.href = data.url;
+      }
     } catch (error) {
       console.error('Coinbase onramp error:', error);
-      // Fallback: open without session (will prompt user to enter address)
-      window.open('https://pay.coinbase.com/buy/select-asset', '_blank', 'noopener,noreferrer');
+      // Fallback: navigate to Coinbase without session
+      if (popup) {
+        popup.location.href = 'https://pay.coinbase.com/buy/select-asset';
+      } else {
+        window.location.href = 'https://pay.coinbase.com/buy/select-asset';
+      }
     } finally {
       setCoinbaseLoading(false);
     }

@@ -34,6 +34,7 @@ function generateJWT(): string {
     alg: 'ES256',
     kid: COINBASE_API_KEY,
     typ: 'JWT',
+    nonce: crypto.randomBytes(16).toString('hex'),
   };
 
   const now = Math.floor(Date.now() / 1000);
