@@ -162,9 +162,6 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    // Debug: log what Coinbase returns
-    console.log('Coinbase response:', JSON.stringify(data));
-
     // The token might be in different fields depending on API version
     const token = data.token || data.session_token || data.sessionToken;
 
@@ -178,7 +175,7 @@ export async function POST(request: NextRequest) {
     // Return the onramp URL
     const onrampUrl = `https://pay.coinbase.com/buy/select-asset?appId=${COINBASE_APP_ID}&sessionToken=${token}`;
 
-    return NextResponse.json({ url: onrampUrl, debug: { responseKeys: Object.keys(data) } });
+    return NextResponse.json({ url: onrampUrl });
   } catch (error) {
     console.error('Error creating Coinbase session:', error);
     return NextResponse.json(
