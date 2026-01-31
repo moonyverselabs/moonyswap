@@ -2,8 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 const COINBASE_API_KEY = process.env.COINBASE_API_KEY || '';
-const COINBASE_API_SECRET = process.env.COINBASE_API_SECRET || '';
 const COINBASE_APP_ID = process.env.NEXT_PUBLIC_COINBASE_APP_ID || '';
+
+// Handle PEM key - Vercel may escape newlines as \n or strip them
+function formatPemKey(key: string): string {
+  // If key contains literal \n, replace with actual newlines
+  let formatted = key.replace(/\\n/g, '\n');
+
+  // If the key is all on one line (no newlines), try to reconstruct it
+  if (!formatted.includes('\n') && formatted.includes('-----BEGIN')) {
+    // Extract the base64 content between BEGIN and END
+    const match = formatted.match(/-----BEGIN [^-]+-----(.+)-----END [^-]+-----/);
+    if (match) {
+      const header = formatted.match(/-----BEGIN [^-]+-----/)?.[0] || '';
+      const footer = formatted.match(/-----END [^-]+-----/)?.[0] || '';
+      const base64 = match[1];
+      // Split base64 into 64-char lines
+      const lines = base64.match(/.{1,64}/g) || [];
+      formatted = `${header}\n${lines.join('\n')}\n${footer}`;
+    }
+  }
+
+  return formatted;
+}
+
+const COINBASE_API_SECRET = formatPemKey(process.env.COINBASE_API_SECRET || '');
 
 // Generate JWT for Coinbase API authentication
 function generateJWT(): string {
