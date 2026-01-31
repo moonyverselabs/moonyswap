@@ -1,62 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { generateJwt } from '@coinbase/cdp-sdk/auth';
 
 const COINBASE_API_KEY = process.env.COINBASE_API_KEY || '';
+const COINBASE_API_SECRET = process.env.COINBASE_API_SECRET || '';
 const COINBASE_APP_ID = process.env.NEXT_PUBLIC_COINBASE_APP_ID || '';
 
-// Handle PEM key - Vercel may escape newlines as \n or strip them
+// Handle PEM key - Vercel may escape newlines as \n
 function formatPemKey(key: string): string {
-  // If key contains literal \n, replace with actual newlines
-  let formatted = key.replace(/\\n/g, '\n');
-
-  // If the key is all on one line (no newlines), try to reconstruct it
-  if (!formatted.includes('\n') && formatted.includes('-----BEGIN')) {
-    // Extract the base64 content between BEGIN and END
-    const match = formatted.match(/-----BEGIN [^-]+-----(.+)-----END [^-]+-----/);
-    if (match) {
-      const header = formatted.match(/-----BEGIN [^-]+-----/)?.[0] || '';
-      const footer = formatted.match(/-----END [^-]+-----/)?.[0] || '';
-      const base64 = match[1];
-      // Split base64 into 64-char lines
-      const lines = base64.match(/.{1,64}/g) || [];
-      formatted = `${header}\n${lines.join('\n')}\n${footer}`;
-    }
-  }
-
-  return formatted;
-}
-
-const COINBASE_API_SECRET = formatPemKey(process.env.COINBASE_API_SECRET || '');
-
-// Generate JWT for Coinbase API authentication
-function generateJWT(): string {
-  const header = {
-    alg: 'ES256',
-    kid: COINBASE_API_KEY,
-    typ: 'JWT',
-    nonce: crypto.randomBytes(16).toString('hex'),
-  };
-
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    iss: 'cdp',
-    nbf: now,
-    exp: now + 120, // 2 minutes
-    sub: COINBASE_API_KEY,
-    aud: ['cdp_service'],
-    uri: 'POST api.developer.coinbase.com/onramp/v1/token',
-  };
-
-  const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
-  const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const message = `${base64Header}.${base64Payload}`;
-
-  // Parse the PEM private key and sign
-  const sign = crypto.createSign('SHA256');
-  sign.update(message);
-  const signature = sign.sign(COINBASE_API_SECRET, 'base64url');
-
-  return `${message}.${signature}`;
+  return key.replace(/\\n/g, '\n');
 }
 
 export async function POST(request: NextRequest) {
@@ -76,16 +27,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let jwt: string;
-    try {
-      jwt = generateJWT();
-    } catch (jwtError) {
-      console.error('JWT generation failed:', jwtError);
-      return NextResponse.json(
-        { error: 'Failed to generate authentication token' },
-        { status: 500 }
-      );
-    }
+    // Generate JWT using the CDP SDK
+    const jwt = await generateJwt({
+      apiKeyId: COINBASE_API_KEY,
+      apiKeySecret: formatPemKey(COINBASE_API_SECRET),
+      requestMethod: 'POST',
+      requestHost: 'api.developer.coinbase.com',
+      requestPath: '/onramp/v1/token',
+      expiresIn: 120,
+    });
 
     // Request session token from Coinbase
     const response = await fetch('https://api.developer.coinbase.com/onramp/v1/token', {
@@ -100,7 +50,6 @@ export async function POST(request: NextRequest) {
           assets: ['USDC'],
           supported_networks: ['solana'],
         }] : [],
-        // Lock to USDC on Solana only
         assets: ['USDC'],
         default_asset: 'USDC',
         default_network: 'solana',
@@ -125,7 +74,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating Coinbase session:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: String(error) },
       { status: 500 }
     );
   }
