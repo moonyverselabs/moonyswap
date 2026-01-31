@@ -40,13 +40,27 @@ export async function POST(request: NextRequest) {
     const { walletAddress } = body;
 
     if (!COINBASE_API_KEY || !COINBASE_API_SECRET || !COINBASE_APP_ID) {
+      console.error('Missing credentials:', {
+        hasKey: !!COINBASE_API_KEY,
+        hasSecret: !!COINBASE_API_SECRET,
+        hasAppId: !!COINBASE_APP_ID,
+      });
       return NextResponse.json(
         { error: 'Coinbase credentials not configured' },
         { status: 500 }
       );
     }
 
-    const jwt = generateJWT();
+    let jwt: string;
+    try {
+      jwt = generateJWT();
+    } catch (jwtError) {
+      console.error('JWT generation failed:', jwtError);
+      return NextResponse.json(
+        { error: 'Failed to generate authentication token' },
+        { status: 500 }
+      );
+    }
 
     // Request session token from Coinbase
     const response = await fetch('https://api.developer.coinbase.com/onramp/v1/token', {
@@ -70,9 +84,9 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Coinbase API error:', errorText);
+      console.error('Coinbase API error:', response.status, errorText);
       return NextResponse.json(
-        { error: 'Failed to create session token' },
+        { error: `Coinbase API error: ${response.status}`, details: errorText },
         { status: response.status }
       );
     }
