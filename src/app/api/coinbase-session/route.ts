@@ -152,8 +152,8 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    // Return the onramp URL with session token
-    const onrampUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${data.token}&appId=${COINBASE_APP_ID}`;
+    // Return the onramp URL with session token (no appId needed - session is tied to app)
+    const onrampUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${data.token}`;
 
     return NextResponse.json({ url: onrampUrl });
   } catch (error) {
