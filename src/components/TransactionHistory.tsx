@@ -41,19 +41,19 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
 
   if (loading) {
     return (
-      <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-white font-semibold text-sm">Transaction History</h3>
+      <div className="bg-[#141418] rounded-xl border border-[#2a2a30] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#2a2a30] flex items-center justify-between">
+          <h3 className="text-moony-gradient font-semibold text-sm">Transaction History</h3>
         </div>
         <div className="p-5">
           <div className="space-y-3">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse flex items-center gap-4">
-                <div className="w-20 h-4 bg-slate-800 rounded" />
-                <div className="w-12 h-5 bg-slate-800 rounded" />
-                <div className="flex-1 h-4 bg-slate-800 rounded" />
-                <div className="w-16 h-4 bg-slate-800 rounded" />
-                <div className="w-20 h-4 bg-slate-800 rounded" />
+                <div className="w-20 h-4 bg-[#2a2a30] rounded" />
+                <div className="w-12 h-5 bg-[#2a2a30] rounded" />
+                <div className="flex-1 h-4 bg-[#2a2a30] rounded" />
+                <div className="w-16 h-4 bg-[#2a2a30] rounded" />
+                <div className="w-20 h-4 bg-[#2a2a30] rounded" />
               </div>
             ))}
           </div>
@@ -64,15 +64,15 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
 
   if (error) {
     return (
-      <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-800">
-          <h3 className="text-white font-semibold text-sm">Transaction History</h3>
+      <div className="bg-[#141418] rounded-xl border border-[#2a2a30] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[#2a2a30]">
+          <h3 className="text-moony-gradient font-semibold text-sm">Transaction History</h3>
         </div>
         <div className="p-8 text-center">
-          <p className="text-slate-500 text-sm">{error}</p>
+          <p className="text-[#707078] text-sm">{error}</p>
           <button
             onClick={refresh}
-            className="mt-3 px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+            className="mt-3 px-4 py-2 text-sm bg-[#1a1a1f] hover:bg-[#2a2a30] text-white rounded-lg transition-colors"
           >
             Try Again
           </button>
@@ -82,14 +82,14 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
   }
 
   return (
-    <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+    <div className="bg-[#141418] rounded-xl border border-[#2a2a30] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-800">
+      <div className="px-5 py-4 border-b border-[#2a2a30]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <h3 className="text-white font-semibold text-sm">Transaction History</h3>
+            <h3 className="text-moony-gradient font-semibold text-sm">Transaction History</h3>
             {trades.length > 0 && (
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-[#707078]">
                 {filteredTrades.length === trades.length
                   ? `${trades.length} trades`
                   : `${filteredTrades.length} of ${trades.length}`}
@@ -98,7 +98,7 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
           </div>
           <button
             onClick={refresh}
-            className="text-slate-500 hover:text-white transition-colors"
+            className="text-[#707078] hover:text-white transition-colors"
             title="Refresh"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,13 +110,13 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Type Filter */}
-          <div className="flex rounded-lg overflow-hidden border border-slate-700">
+          <div className="flex rounded-lg overflow-hidden border border-[#2a2a30]">
             <button
               onClick={() => setTypeFilter('all')}
               className={`px-3 py-1 text-xs font-medium transition-colors ${
                 typeFilter === 'all'
-                  ? 'bg-slate-700 text-white'
-                  : 'bg-transparent text-slate-400 hover:text-white'
+                  ? 'bg-[#2a2a30] text-white'
+                  : 'bg-transparent text-[#a0a0a8] hover:text-white'
               }`}
             >
               All
@@ -126,7 +126,7 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
               className={`px-3 py-1 text-xs font-medium transition-colors ${
                 typeFilter === 'buy'
                   ? 'bg-green-900/50 text-green-400'
-                  : 'bg-transparent text-slate-400 hover:text-green-400'
+                  : 'bg-transparent text-[#a0a0a8] hover:text-green-400'
               }`}
             >
               Buys
@@ -136,7 +136,7 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
               className={`px-3 py-1 text-xs font-medium transition-colors ${
                 typeFilter === 'sell'
                   ? 'bg-red-900/50 text-red-400'
-                  : 'bg-transparent text-slate-400 hover:text-red-400'
+                  : 'bg-transparent text-[#a0a0a8] hover:text-red-400'
               }`}
             >
               Sells
@@ -144,15 +144,15 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
           </div>
 
           {/* Amount Filter */}
-          <div className="flex rounded-lg overflow-hidden border border-slate-700">
+          <div className="flex rounded-lg overflow-hidden border border-[#2a2a30]">
             {([0, 100, 1000, 10000] as AmountFilter[]).map((amount) => (
               <button
                 key={amount}
                 onClick={() => setAmountFilter(amount)}
                 className={`px-3 py-1 text-xs font-medium transition-colors ${
                   amountFilter === amount
-                    ? 'bg-slate-700 text-white'
-                    : 'bg-transparent text-slate-400 hover:text-white'
+                    ? 'bg-[#2a2a30] text-white'
+                    : 'bg-transparent text-[#a0a0a8] hover:text-white'
                 }`}
               >
                 {amount === 0 ? 'Any' : `>$${amount.toLocaleString()}`}
@@ -164,13 +164,13 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
 
       {filteredTrades.length === 0 ? (
         <div className="p-8 text-center">
-          <p className="text-slate-500 text-sm">
+          <p className="text-[#707078] text-sm">
             {trades.length === 0 ? 'No trades found' : 'No trades match filters'}
           </p>
           {trades.length > 0 && (typeFilter !== 'all' || amountFilter > 0) && (
             <button
               onClick={() => { setTypeFilter('all'); setAmountFilter(0); }}
-              className="mt-2 text-xs text-emerald-400 hover:text-emerald-300"
+              className="mt-2 text-xs text-[#D8C5FD] hover:text-[#FFF2D9]"
             >
               Clear filters
             </button>
@@ -179,7 +179,7 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
       ) : (
         <>
           {/* Table Header */}
-          <div className="grid grid-cols-12 gap-2 px-5 py-2 text-xs text-slate-500 border-b border-slate-800/50 bg-slate-900/50">
+          <div className="grid grid-cols-12 gap-2 px-5 py-2 text-xs text-[#707078] border-b border-[#2a2a30]/50 bg-[#141418]/50">
             <div className="col-span-2">Time</div>
             <div className="col-span-1">Type</div>
             <div className="col-span-3 text-right">Amount</div>
@@ -196,11 +196,11 @@ export function TransactionHistory({ poolAddress, tokenMint, tokenSymbol }: Tran
 
             {/* Load More */}
             {hasMore && (
-              <div className="p-4 text-center border-t border-slate-800/50">
+              <div className="p-4 text-center border-t border-[#2a2a30]/50">
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800/50 text-white disabled:text-slate-500 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm bg-[#1a1a1f] hover:bg-[#2a2a30] disabled:bg-[#1a1a1f]/50 text-white disabled:text-[#707078] rounded-lg transition-colors"
                 >
                   {loadingMore ? (
                     <span className="flex items-center gap-2">
@@ -231,12 +231,12 @@ function TradeRow({ trade, tokenSymbol }: { trade: Trade; tokenSymbol: string })
       href={`https://solscan.io/tx/${trade.signature}`}
       target="_blank"
       rel="noopener noreferrer"
-      className={`grid grid-cols-12 gap-2 px-5 py-3 text-sm border-b border-slate-800/30 hover:bg-slate-800/30 transition-colors ${
+      className={`grid grid-cols-12 gap-2 px-5 py-3 text-sm border-b border-[#2a2a30]/30 hover:bg-[#1a1a1f]/30 transition-colors ${
         isBuy ? 'hover:bg-green-900/10' : 'hover:bg-red-900/10'
       }`}
     >
       {/* Time */}
-      <div className="col-span-2 text-slate-400 text-xs flex items-center">
+      <div className="col-span-2 text-[#a0a0a8] text-xs flex items-center">
         {formatTimestamp(trade.timestamp)}
       </div>
 
@@ -259,7 +259,7 @@ function TradeRow({ trade, tokenSymbol }: { trade: Trade; tokenSymbol: string })
       </div>
 
       {/* Price */}
-      <div className="col-span-2 text-right text-slate-300 font-mono">
+      <div className="col-span-2 text-right text-[#a0a0a8] font-mono">
         {trade.pricePerToken > 0 ? formatUsd(trade.pricePerToken) : '-'}
       </div>
 
@@ -270,7 +270,7 @@ function TradeRow({ trade, tokenSymbol }: { trade: Trade; tokenSymbol: string })
 
       {/* Maker */}
       <div className="col-span-2 text-right">
-        <span className="text-slate-500 font-mono text-xs hover:text-emerald-400 transition-colors">
+        <span className="text-[#707078] font-mono text-xs hover:text-[#D8C5FD] transition-colors">
           {truncateAddress(trade.wallet)}
         </span>
       </div>

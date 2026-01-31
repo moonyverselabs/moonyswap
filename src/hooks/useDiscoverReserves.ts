@@ -1,9 +1,10 @@
 'use client';
 
 import { useConnection } from '@solana/wallet-adapter-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { discoverAllPools, fetchTokenMetadata, DiscoveredPool, TokenMetadata } from '@/lib/discovery';
 import { MOCK_MNY } from '@/lib/constants';
+import { MOCK_TOKENS, EXTENDED_MOCK_TOKENS, MockToken } from '@/lib/mockTokens';
 import { getSpotPrice, calculateCirculatingSupply, usdfBaseToWhole, formatUsd } from '@/lib/curve';
 import BigNumber from 'bignumber.js';
 
@@ -20,19 +21,59 @@ export interface DiscoveredReserve {
   marketCapFormatted: string;
 }
 
+// Cache metadata to avoid repeated Helius API calls
+const metadataCache: Record<string, TokenMetadata> = {};
+let lastMetadataFetch = 0;
+const METADATA_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+// Price refresh interval (vault balances)
+const PRICE_REFRESH_INTERVAL = 30 * 1000; // 30 seconds
+
 export function useDiscoverReserves() {
   const { connection } = useConnection();
   const [reserves, setReserves] = useState<DiscoveredReserve[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const poolsRef = useRef<DiscoveredPool[]>([]);
 
-  const fetchReserves = useCallback(async () => {
+  // Fetch metadata only if cache is stale
+  const fetchMetadataIfNeeded = useCallback(async (mintAddresses: string[]) => {
+    const now = Date.now();
+    const uncachedMints = mintAddresses.filter(m => !metadataCache[m]);
+
+    // Only fetch if we have uncached mints or cache is stale
+    if (uncachedMints.length === 0 && now - lastMetadataFetch < METADATA_CACHE_TTL) {
+      return;
+    }
+
+    const mintsToFetch = now - lastMetadataFetch >= METADATA_CACHE_TTL
+      ? mintAddresses
+      : uncachedMints;
+
+    if (mintsToFetch.length === 0) return;
+
+    try {
+      const heliusApiKey = process.env.NEXT_PUBLIC_RPC_URL?.match(/api-key=([^&]+)/)?.[1] || '';
+      const metadata = await fetchTokenMetadata(mintsToFetch, heliusApiKey);
+
+      // Update cache
+      Object.assign(metadataCache, metadata);
+      lastMetadataFetch = now;
+    } catch (err) {
+      console.error('Error fetching metadata:', err);
+      // Don't throw - we can still show data with cached/fallback metadata
+    }
+  }, []);
+
+  // Full fetch: pools + metadata + prices
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       // Step 1: Discover all pools
       const pools = await discoverAllPools(connection);
+      poolsRef.current = pools;
 
       if (pools.length === 0) {
         setReserves([]);
@@ -40,27 +81,38 @@ export function useDiscoverReserves() {
         return;
       }
 
-      // Step 2: Fetch token metadata for all discovered mints
+      // Step 2: Fetch token metadata (cached)
       const mintAddresses = pools.map(p => p.currencyMint.toString());
-      const heliusApiKey = process.env.NEXT_PUBLIC_RPC_URL?.match(/api-key=([^&]+)/)?.[1] || '';
-      const metadata = await fetchTokenMetadata(mintAddresses, heliusApiKey);
+      await fetchMetadataIfNeeded(mintAddresses);
 
-      // Step 3: Fetch vault balances for all pools
-      const vaultAddresses = pools.flatMap(p => [p.currencyVault, p.baseVault]);
+      // Step 3: Fetch vault balances
+      await updatePrices(pools);
+    } catch (err) {
+      console.error('Error discovering reserves:', err);
+      setError(err instanceof Error ? err.message : 'Failed to discover reserves');
+      setLoading(false);
+    }
+  }, [connection, fetchMetadataIfNeeded]);
+
+  // Price-only update (no metadata fetch)
+  const updatePrices = useCallback(async (pools?: DiscoveredPool[]) => {
+    const poolsToUse = pools || poolsRef.current;
+    if (poolsToUse.length === 0) return;
+
+    try {
+      const vaultAddresses = poolsToUse.flatMap(p => [p.currencyVault, p.baseVault]);
       const vaultInfos = await connection.getMultipleAccountsInfo(vaultAddresses);
 
-      // Step 4: Process each pool
       const results: DiscoveredReserve[] = [];
 
-      for (let i = 0; i < pools.length; i++) {
-        const pool = pools[i];
+      for (let i = 0; i < poolsToUse.length; i++) {
+        const pool = poolsToUse[i];
         const tokenVaultInfo = vaultInfos[i * 2];
         const usdfVaultInfo = vaultInfos[i * 2 + 1];
 
         if (!tokenVaultInfo || !usdfVaultInfo) continue;
 
         try {
-          // Parse token account balances
           const tokenBalance = tokenVaultInfo.data.readBigUInt64LE(64);
           const usdfBalance = usdfVaultInfo.data.readBigUInt64LE(64);
 
@@ -70,7 +122,7 @@ export function useDiscoverReserves() {
           const marketCap = currentPrice.multipliedBy(circulatingSupply);
 
           const mintKey = pool.currencyMint.toString();
-          const tokenMetadata = metadata[mintKey] || {
+          const tokenMetadata = metadataCache[mintKey] || {
             name: 'Unknown Token',
             symbol: mintKey.slice(0, 4),
             icon: '',
@@ -93,15 +145,15 @@ export function useDiscoverReserves() {
         }
       }
 
-      // Add mock MNY if enabled (duplicates JFY data with MNY branding)
+      // Add mock tokens if enabled
       if (MOCK_MNY.enabled) {
         const jfyReserve = results.find(r => r.pool.currencyMint.toString() === MOCK_MNY.realMint);
         if (jfyReserve) {
-          const mockMnyReserve: DiscoveredReserve = {
+          // Add mock MNY
+          results.push({
             ...jfyReserve,
             pool: {
               ...jfyReserve.pool,
-              // Use a fake address for routing purposes
               currencyMint: { toString: () => MOCK_MNY.mockMint } as any,
             },
             metadata: {
@@ -109,36 +161,55 @@ export function useDiscoverReserves() {
               symbol: MOCK_MNY.symbol,
               icon: MOCK_MNY.icon,
             },
-          };
-          results.push(mockMnyReserve);
+          });
+
+          // Add additional mock tokens
+          const allMockTokens = [...MOCK_TOKENS, ...EXTENDED_MOCK_TOKENS];
+          for (const mockToken of allMockTokens) {
+            results.push({
+              ...jfyReserve,
+              pool: {
+                ...jfyReserve.pool,
+                currencyMint: { toString: () => mockToken.mint } as any,
+              },
+              metadata: {
+                name: mockToken.name,
+                symbol: mockToken.symbol,
+                icon: mockToken.icon,
+              },
+            });
+          }
         }
       }
 
-      // Sort by reserve balance (descending), but always put Moony first
+      // Sort: MNY first, JFY second, then by reserve balance
       results.sort((a, b) => {
-        // Moony always first
+        const aMint = a.pool.currencyMint.toString();
+        const bMint = b.pool.currencyMint.toString();
         if (a.metadata.symbol === 'MNY') return -1;
         if (b.metadata.symbol === 'MNY') return 1;
-        // Then sort by reserve balance
+        if (aMint === MOCK_MNY.realMint) return -1;
+        if (bMint === MOCK_MNY.realMint) return 1;
         return b.reserveBalance.minus(a.reserveBalance).toNumber();
       });
 
       setReserves(results);
     } catch (err) {
-      console.error('Error discovering reserves:', err);
-      setError(err instanceof Error ? err.message : 'Failed to discover reserves');
+      console.error('Error updating prices:', err);
     } finally {
       setLoading(false);
     }
   }, [connection]);
 
   useEffect(() => {
-    fetchReserves();
+    // Initial full fetch
+    fetchAll();
 
-    // Refresh every 60 seconds
-    const interval = setInterval(fetchReserves, 60000);
-    return () => clearInterval(interval);
-  }, [fetchReserves]);
+    // Price updates every 30 seconds (no metadata fetch)
+    const priceInterval = setInterval(() => updatePrices(), PRICE_REFRESH_INTERVAL);
 
-  return { reserves, loading, error, refresh: fetchReserves };
+    return () => clearInterval(priceInterval);
+  }, [fetchAll, updatePrices]);
+
+  return { reserves, loading, error, refresh: fetchAll };
 }

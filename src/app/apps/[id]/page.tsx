@@ -2,8 +2,9 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { getAppById, CATEGORY_LABELS, CATEGORY_COLORS } from '@/lib/apps';
+import { getAppById, CATEGORY_LABELS, CATEGORY_COLORS, getAppGradient } from '@/lib/apps';
 import { Footer } from '@/components/Footer';
+import { TrendingBar } from '@/components/TrendingBar';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ export default function AppDetailPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-moony-subtle">
         <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-4 py-4">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/apps" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
               Moonyswap
             </Link>
@@ -42,38 +43,63 @@ export default function AppDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-moony-subtle">
-      {/* Construction Banner */}
-      <div className="bg-amber-500/90 text-[#0c0c0f] text-center py-2 text-sm font-medium">
-        This site is under construction · Confidential preview
-      </div>
 
       {/* Header */}
       <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
-            Moonyswap
-          </Link>
-          <Link
-            href="/apps"
-            className="px-4 py-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-[#a0a0a8] rounded-lg text-sm font-medium transition-colors"
-          >
-            ← All Apps
-          </Link>
+          {/* Left: Logo */}
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
+              Moonyswap
+            </Link>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider bg-[#FFF2D9] text-[#0c0c0f] px-1.5 py-0.5 rounded">
+              <span className="w-1.5 h-1.5 bg-[#0c0c0f] rounded-full animate-pulse" />
+              Beta
+            </span>
+          </div>
+          {/* Right: Nav + Social */}
+          <div className="flex items-center gap-3">
+            <nav className="hidden md:flex items-center gap-1">
+              <Link href="/explore" className="px-3 py-1.5 text-sm font-medium text-[#a0a0a8] hover:text-white hover:bg-[#1a1a1f] rounded-lg transition-colors">
+                Currencies
+              </Link>
+              <span className="px-3 py-1.5 text-sm font-medium text-white bg-[#1a1a1f] rounded-lg">
+                Apps
+              </span>
+            </nav>
+            <a
+              href="https://x.com/moonyswap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-[#a0a0a8] hover:text-white rounded-lg transition-colors"
+              title="Follow @moonyswap"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+          </div>
         </div>
       </header>
+
+      {/* Trending Bar */}
+      <TrendingBar />
 
       <main className="max-w-5xl mx-auto px-4 py-10">
         {/* App Hero */}
         <div className="bg-[#141418] border border-[#2a2a30] rounded-2xl p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start gap-6">
             {/* Icon */}
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#2a2a30] to-[#1a1a1f] flex items-center justify-center text-5xl flex-shrink-0">
-              {app.category === 'game' && '🎮'}
-              {app.category === 'marketplace' && '🏪'}
-              {app.category === 'platform' && '🚀'}
-              {app.category === 'tool' && '🔧'}
-              {app.category === 'social' && '💬'}
-            </div>
+            {app.icon ? (
+              <img src={app.icon} alt={app.name} className="w-24 h-24 rounded-2xl flex-shrink-0" />
+            ) : (
+              <div
+                className="w-24 h-24 rounded-2xl flex items-center justify-center text-white text-4xl font-bold flex-shrink-0"
+                style={{ background: getAppGradient(app.id) }}
+              >
+                {app.name.charAt(0)}
+              </div>
+            )}
 
             {/* Info */}
             <div className="flex-1">
@@ -96,7 +122,7 @@ export default function AppDetailPage({ params }: PageProps) {
                   </span>
                 )}
                 {app.status === 'coming-soon' && (
-                  <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full">
+                  <span className="text-xs bg-[#FFF2D9]/20 text-[#FFF2D9] px-2 py-1 rounded-full">
                     Coming Soon
                   </span>
                 )}

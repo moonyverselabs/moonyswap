@@ -313,18 +313,18 @@ export function PriceCurveChart({
   const isCurrentVisible = currentRes >= reserveRange.min && currentRes <= reserveRange.max;
 
   return (
-    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+    <div className="bg-[#141418] rounded-xl p-4 border border-[#2a2a30]">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <h3 className="text-white font-semibold">Price Curve</h3>
-        <div className="flex items-center gap-1 bg-slate-900 rounded-lg p-1">
+        <h3 className="text-moony-gradient font-semibold">Price Curve</h3>
+        <div className="flex items-center gap-1 bg-[#1a1a1f] rounded-lg p-1">
           {ZOOM_OPTIONS.map(option => (
             <button
               key={option.key}
               onClick={() => setZoom(option.key)}
               className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                 zoom === option.key
-                  ? 'bg-emerald-600 text-white'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'btn-moony'
+                  : 'text-[#a0a0a8] hover:text-white'
               }`}
             >
               {option.label}
@@ -347,7 +347,7 @@ export function PriceCurveChart({
             y1={tick.y}
             x2={width - padding.right}
             y2={tick.y}
-            stroke="#374151"
+            stroke="#2a2a30"
             strokeWidth="1"
           />
         ))}
@@ -363,7 +363,7 @@ export function PriceCurveChart({
         <path
           d={pathD}
           fill="none"
-          stroke="#a855f7"
+          stroke="#D8C5FD"
           strokeWidth="2"
         />
 
@@ -374,7 +374,7 @@ export function PriceCurveChart({
               cx={currentX}
               cy={currentY}
               r="8"
-              fill="#a855f7"
+              fill="#D8C5FD"
               stroke="#fff"
               strokeWidth="2"
             />
@@ -383,7 +383,7 @@ export function PriceCurveChart({
               y1={currentY}
               x2={currentX}
               y2={padding.top + chartHeight}
-              stroke="#a855f7"
+              stroke="#D8C5FD"
               strokeWidth="1"
               strokeDasharray="4,4"
               opacity="0.5"
@@ -399,7 +399,7 @@ export function PriceCurveChart({
             y={tick.y}
             textAnchor="end"
             dominantBaseline="middle"
-            fill="#9ca3af"
+            fill="#a0a0a8"
             fontSize="11"
           >
             {tick.label}
@@ -413,7 +413,7 @@ export function PriceCurveChart({
             x={tick.x}
             y={height - padding.bottom + 20}
             textAnchor="middle"
-            fill="#9ca3af"
+            fill="#a0a0a8"
             fontSize="11"
           >
             {tick.label}
@@ -425,7 +425,7 @@ export function PriceCurveChart({
           x={width / 2}
           y={height - 10}
           textAnchor="middle"
-          fill="#6b7280"
+          fill="#707078"
           fontSize="12"
         >
           Reserve Balance (USDF)
@@ -435,7 +435,7 @@ export function PriceCurveChart({
           x={15}
           y={height / 2}
           textAnchor="middle"
-          fill="#6b7280"
+          fill="#707078"
           fontSize="12"
           transform={`rotate(-90, 15, ${height / 2})`}
         >
@@ -467,7 +467,7 @@ export function PriceCurveChart({
               y1={padding.top}
               x2={hoverData.x}
               y2={padding.top + chartHeight}
-              stroke="#9ca3af"
+              stroke="#a0a0a8"
               strokeWidth="1"
               strokeDasharray="4,4"
             />
@@ -477,7 +477,7 @@ export function PriceCurveChart({
               y1={hoverData.y}
               x2={width - padding.right}
               y2={hoverData.y}
-              stroke="#9ca3af"
+              stroke="#a0a0a8"
               strokeWidth="1"
               strokeDasharray="4,4"
             />
@@ -486,7 +486,7 @@ export function PriceCurveChart({
               cx={hoverData.x}
               cy={hoverData.y}
               r="6"
-              fill="#10b981"
+              fill="#FFF2D9"
               stroke="#fff"
               strokeWidth="2"
             />
@@ -497,8 +497,8 @@ export function PriceCurveChart({
               width="110"
               height="40"
               rx="4"
-              fill="#1f2937"
-              stroke="#374151"
+              fill="#1a1a1f"
+              stroke="#2a2a30"
             />
             {/* Tooltip text - Price */}
             <text
@@ -517,7 +517,7 @@ export function PriceCurveChart({
             <text
               x={hoverData.x + 18}
               y={hoverData.y - 12}
-              fill={hoverData.gain >= 0 ? "#10b981" : "#ef4444"}
+              fill={hoverData.gain >= 0 ? "#22c55e" : "#ef4444"}
               fontSize="11"
             >
               {hoverData.gain >= 0 ? '+' : ''}{hoverData.gain.toFixed(2)}% from current
@@ -528,8 +528,8 @@ export function PriceCurveChart({
         {/* Gradient definition */}
         <defs>
           <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#a855f7" />
-            <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+            <stop offset="0%" stopColor="#D8C5FD" />
+            <stop offset="100%" stopColor="#D8C5FD" stopOpacity="0" />
           </linearGradient>
         </defs>
       </svg>
@@ -538,11 +538,11 @@ export function PriceCurveChart({
       <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-500" />
-            <span className="text-slate-400">Current: {currentReserve.isLessThan(1000) ? `$${currentReserve.toFixed(2)}` : `$${(currentReserve.toNumber() / 1000).toFixed(1)}K`} in reserve</span>
+            <div className="w-3 h-3 rounded-full bg-[#D8C5FD]" />
+            <span className="text-[#a0a0a8]">Current: {currentReserve.isLessThan(1000) ? `$${currentReserve.toFixed(2)}` : `$${(currentReserve.toNumber() / 1000).toFixed(1)}K`} in reserve</span>
           </div>
         </div>
-        <div className="text-slate-500">
+        <div className="text-[#707078]">
           Hover over curve to see price at any point
         </div>
       </div>

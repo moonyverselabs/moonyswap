@@ -24,7 +24,7 @@ export default function TokenProfilePage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-moony-subtle">
         <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
               Moonyswap
             </Link>
@@ -44,7 +44,7 @@ export default function TokenProfilePage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-moony-subtle">
         <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
               Moonyswap
             </Link>
@@ -72,30 +72,48 @@ export default function TokenProfilePage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-moony-subtle">
-      {/* Construction Banner */}
-      <div className="bg-amber-500/90 text-[#0c0c0f] text-center py-2 text-sm font-medium">
-        This site is under construction · Confidential preview
-      </div>
-
       {/* Header */}
       <header className="border-b border-[#2a2a30] bg-[#0c0c0f]/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
-            Moonyswap
-          </Link>
-          <Link
-            href="/"
-            className="px-4 py-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-[#a0a0a8] rounded-lg text-sm font-medium transition-colors"
-          >
-            ← All Tokens
-          </Link>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Left: Logo */}
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-xl font-bold text-white hover:text-[#D8C5FD] transition-colors">
+              Moonyswap
+            </Link>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider bg-[#FFF2D9] text-[#0c0c0f] px-1.5 py-0.5 rounded">
+              <span className="w-1.5 h-1.5 bg-[#0c0c0f] rounded-full animate-pulse" />
+              Beta
+            </span>
+          </div>
+          {/* Right: Nav + Social */}
+          <div className="flex items-center gap-3">
+            <nav className="hidden md:flex items-center gap-1">
+              <Link href="/explore" className="px-3 py-1.5 text-sm font-medium text-white bg-[#1a1a1f] rounded-lg">
+                Currencies
+              </Link>
+              <Link href="/apps" className="px-3 py-1.5 text-sm font-medium text-[#a0a0a8] hover:text-white hover:bg-[#1a1a1f] rounded-lg transition-colors">
+                Apps
+              </Link>
+            </nav>
+            <a
+              href="https://x.com/moonyswap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 bg-[#1a1a1f] hover:bg-[#2a2a30] text-[#a0a0a8] hover:text-white rounded-lg transition-colors"
+              title="Follow @moonyswap"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+          </div>
         </div>
       </header>
 
       {/* Trending Bar */}
       <TrendingBar currentMint={mint} />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Mock MNY Test Banner */}
         {isMockMny && (
           <div className="bg-[#D8C5FD]/10 border border-[#D8C5FD]/30 rounded-lg px-4 py-2 mb-6 flex items-center gap-2">

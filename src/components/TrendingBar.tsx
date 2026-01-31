@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useDiscoverReserves } from '@/hooks/useDiscoverReserves';
 import { getSpotPrice, getTokenCost } from '@/lib/curve';
+import { isMockToken, getMockGradient } from '@/lib/mockTokens';
 
 // Helper: find supply at a given reserve
 function supplyAtReserve(targetReserve: number): number {
@@ -47,24 +48,20 @@ export function TrendingBar({ currentMint }: TrendingBarProps) {
     return null;
   }
 
-  // Generate top 10 by looping if needed - rank is based on unique position
-  const top10: { reserve: typeof reserves[0]; rank: number }[] = [];
-  const maxItems = 10;
-  for (let i = 0; i < maxItems; i++) {
-    const originalIndex = i % reserves.length;
-    top10.push({
-      reserve: reserves[originalIndex],
-      rank: originalIndex + 1, // Rank based on unique position, not loop position
-    });
-  }
-  // Duplicate for seamless loop
+  // Get top 10 unique tokens (no repeating)
+  const top10 = reserves.slice(0, 10).map((reserve, index) => ({
+    reserve,
+    rank: index + 1,
+  }));
+
+  // Duplicate for seamless marquee loop
   const items = [...top10, ...top10];
 
   return (
-    <section className="border-b border-slate-800 bg-slate-900/50 overflow-hidden">
+    <section className="border-b border-[#2a2a30] bg-[#141418]/50 overflow-hidden">
       <div className="flex items-center">
-        <div className="bg-slate-900/80 backdrop-blur-sm px-4 py-3 border-r border-slate-800 z-10">
-          <span className="text-xs text-slate-500 uppercase tracking-wide font-medium">Top 10</span>
+        <div className="bg-[#141418]/80 backdrop-blur-sm px-4 py-3 border-r border-[#2a2a30] z-10">
+          <span className="text-xs text-[#707078] uppercase tracking-wide font-medium">Top 10</span>
         </div>
         <div className="flex-1 overflow-hidden">
           <div className="flex animate-marquee hover:pause-marquee">
@@ -80,13 +77,13 @@ export function TrendingBar({ currentMint }: TrendingBarProps) {
                 <Link
                   key={`${mint}-${idx}`}
                   href={`/token/${mint}`}
-                  className={`flex items-center gap-2 px-4 py-3 transition-colors flex-shrink-0 border-r border-slate-800/50 ${
+                  className={`flex items-center gap-2 px-4 py-3 transition-colors flex-shrink-0 border-r border-[#2a2a30]/50 ${
                     isCurrent
-                      ? 'bg-emerald-500/10'
-                      : 'hover:bg-slate-800/50'
+                      ? 'bg-[#D8C5FD]/10'
+                      : 'hover:bg-[#1a1a1f]/50'
                   }`}
                 >
-                  <span className={`text-xs font-medium w-5 ${isCurrent ? 'text-emerald-400' : 'text-slate-500'}`}>
+                  <span className={`text-xs font-medium w-5 ${isCurrent ? 'text-[#D8C5FD]' : 'text-[#707078]'}`}>
                     #{item.rank}
                   </span>
                   {item.reserve.metadata.icon ? (
@@ -95,15 +92,22 @@ export function TrendingBar({ currentMint }: TrendingBarProps) {
                       alt={item.reserve.metadata.symbol}
                       className="w-5 h-5 rounded-full"
                     />
+                  ) : isMockToken(mint) ? (
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      style={{ background: getMockGradient(item.reserve.metadata.symbol) }}
+                    >
+                      {item.reserve.metadata.symbol.charAt(0)}
+                    </div>
                   ) : (
-                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-5 h-5 rounded-full bg-moony-gradient flex items-center justify-center text-[#0c0c0f] text-xs font-bold">
                       {item.reserve.metadata.symbol.charAt(0)}
                     </div>
                   )}
-                  <span className={`text-sm font-medium ${isCurrent ? 'text-emerald-300' : 'text-white'}`}>
+                  <span className={`text-sm font-medium ${isCurrent ? 'text-[#D8C5FD]' : 'text-white'}`}>
                     {item.reserve.metadata.symbol}
                   </span>
-                  <span className="text-slate-400 text-sm">{item.reserve.currentPriceFormatted}</span>
+                  <span className="text-[#a0a0a8] text-sm">{item.reserve.currentPriceFormatted}</span>
                   {milestone && (
                     <span className="text-green-400 text-xs font-medium">+{milestone.gain.toFixed(0)}%</span>
                   )}
