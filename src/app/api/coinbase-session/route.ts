@@ -27,10 +27,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Format and validate the secret key
+    const formattedSecret = formatPemKey(COINBASE_API_SECRET);
+
+    // Debug: log key format info (not the actual key)
+    console.log('Key format debug:', {
+      startsWithBegin: formattedSecret.startsWith('-----BEGIN'),
+      containsNewlines: formattedSecret.includes('\n'),
+      length: formattedSecret.length,
+      firstChars: formattedSecret.substring(0, 30),
+    });
+
     // Generate JWT using the CDP SDK
     const jwt = await generateJwt({
       apiKeyId: COINBASE_API_KEY,
-      apiKeySecret: formatPemKey(COINBASE_API_SECRET),
+      apiKeySecret: formattedSecret,
       requestMethod: 'POST',
       requestHost: 'api.developer.coinbase.com',
       requestPath: '/onramp/v1/token',
@@ -73,8 +84,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: onrampUrl });
   } catch (error) {
     console.error('Error creating Coinbase session:', error);
+    const formattedSecret = formatPemKey(COINBASE_API_SECRET);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      {
+        error: 'Internal server error',
+        details: String(error),
+        keyDebug: {
+          startsWithBegin: formattedSecret.startsWith('-----BEGIN'),
+          containsNewlines: formattedSecret.includes('\n'),
+          length: formattedSecret.length,
+        }
+      },
       { status: 500 }
     );
   }
