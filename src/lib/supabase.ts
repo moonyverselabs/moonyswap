@@ -53,11 +53,18 @@ export interface PriceHistoryRecord {
   created_at?: string;
 }
 
-// Public client for client-side reads
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Public client for client-side reads (lazy initialization)
+let _supabase: ReturnType<typeof createClient> | null = null;
+
+export function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return _supabase;
+}
 
 // Service client for server-side operations (cron jobs, writes)
 export function getServiceSupabase() {
