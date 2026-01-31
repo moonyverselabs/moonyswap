@@ -227,12 +227,27 @@ export default function HomePage() {
                     )}
                   </>
                 ) : (
-                  <button
-                    onClick={() => setWalletModalVisible(true)}
-                    className="px-3 py-1.5 bg-moony-gradient text-[#0c0c0f] text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    Connect
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Supported wallet icons */}
+                    <div className="hidden sm:flex items-center gap-1 opacity-60">
+                      {/* Phantom */}
+                      <img src="https://phantom.app/img/phantom-icon-purple.svg" alt="Phantom" className="w-5 h-5" title="Phantom" />
+                      {/* Solflare */}
+                      <img src="https://solflare.com/favicon.ico" alt="Solflare" className="w-5 h-5" title="Solflare" />
+                      {/* Backpack */}
+                      <svg className="w-5 h-5" viewBox="0 0 40 40" fill="none" title="Backpack">
+                        <rect width="40" height="40" rx="8" fill="#e33e3f"/>
+                        <path d="M12 14h16v14a2 2 0 01-2 2H14a2 2 0 01-2-2V14z" fill="white"/>
+                        <path d="M14 10h12a2 2 0 012 2v2H12v-2a2 2 0 012-2z" fill="white"/>
+                      </svg>
+                    </div>
+                    <button
+                      onClick={() => setWalletModalVisible(true)}
+                      className="px-3 py-1.5 bg-moony-gradient text-[#0c0c0f] text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      Connect
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
