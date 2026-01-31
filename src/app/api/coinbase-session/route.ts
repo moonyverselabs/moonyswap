@@ -123,20 +123,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Request session token from Coinbase
-    // Using 'addresses' format as per demo app
+    // Address is required - use a placeholder if not provided
+    const requestBody: Record<string, unknown> = {
+      assets: ['USDC'],
+    };
+
+    // Only include addresses if wallet is connected
+    if (walletAddress) {
+      requestBody.addresses = [{
+        address: walletAddress,
+        blockchains: ['solana'],
+      }];
+    } else {
+      // Coinbase requires at least one address - use a dummy that user will replace
+      requestBody.addresses = [{
+        address: '11111111111111111111111111111111', // Solana system program (placeholder)
+        blockchains: ['solana'],
+      }];
+    }
+
     const response = await fetch('https://api.developer.coinbase.com/onramp/v1/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${jwt}`,
       },
-      body: JSON.stringify({
-        addresses: walletAddress ? [{
-          address: walletAddress,
-          blockchains: ['solana'],
-        }] : [],
-        assets: ['USDC'],
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
