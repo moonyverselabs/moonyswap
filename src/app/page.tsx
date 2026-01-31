@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useDiscoverReserves } from '@/hooks/useDiscoverReserves';
 import { useReserveByMint } from '@/hooks/useReserveByMint';
 import { formatTokenAmount, getSpotPrice, getTokenCost } from '@/lib/curve';
@@ -49,8 +51,16 @@ function isValidSolanaAddress(str: string): boolean {
 
 export default function HomePage() {
   const { reserves, loading, error, refresh } = useDiscoverReserves();
+  const wallet = useWallet();
+  const { setVisible: setWalletModalVisible } = useWalletModal();
   const [search, setSearch] = useState('');
   const [searchMint, setSearchMint] = useState('');
+  const [showWalletMenu, setShowWalletMenu] = useState(false);
+
+  // Format wallet address for display
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
 
   // Detect if search is a mint address
   useEffect(() => {
@@ -187,6 +197,44 @@ export default function HomePage() {
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
+
+              {/* Wallet Button */}
+              <div className="relative">
+                {wallet.connected ? (
+                  <>
+                    <button
+                      onClick={() => setShowWalletMenu(!showWalletMenu)}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1f] hover:bg-[#2a2a30] text-white text-sm font-medium rounded-lg transition-colors border border-[#2a2a30]"
+                    >
+                      <span className="w-2 h-2 bg-green-500 rounded-full" />
+                      {formatAddress(wallet.publicKey?.toString() || '')}
+                    </button>
+                    {showWalletMenu && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setShowWalletMenu(false)} />
+                        <div className="absolute right-0 mt-2 w-40 bg-[#1a1a1f] border border-[#2a2a30] rounded-lg shadow-xl z-20 py-1">
+                          <button
+                            onClick={() => {
+                              wallet.disconnect();
+                              setShowWalletMenu(false);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-[#a0a0a8] hover:text-white hover:bg-[#2a2a30] transition-colors"
+                          >
+                            Disconnect
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setWalletModalVisible(true)}
+                    className="px-3 py-1.5 bg-moony-gradient text-[#0c0c0f] text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    Connect
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
