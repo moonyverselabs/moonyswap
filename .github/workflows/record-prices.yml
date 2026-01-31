@@ -1,0 +1,17 @@
+name: Record Prices
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  record-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call price recording endpoint
+        run: |
+          curl -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.PRODUCTION_URL }}/api/cron/record-prices"
