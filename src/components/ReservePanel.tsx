@@ -217,6 +217,12 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
 
   // Open Coinbase Onramp with secure session
   const handleCoinbaseOnramp = async () => {
+    // Prompt to connect wallet first
+    if (!wallet.connected) {
+      setWalletModalVisible(true);
+      return;
+    }
+
     setCoinbaseLoading(true);
 
     try {
@@ -233,9 +239,6 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
       }
 
       const data = await response.json();
-
-      // Debug: log the URL
-      console.log('Coinbase URL:', data.url);
 
       // Navigate current window to Coinbase (avoids popup issues)
       window.location.href = data.url;
