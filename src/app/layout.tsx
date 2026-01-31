@@ -8,8 +8,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Moonyswap",
-  description: "Buy & Trade Flipcash Coins",
+  title: {
+    default: "Moonyswap",
+    template: "%s | Moonyswap",
+  },
+  description: "Decentralized currency exchange for programmable currencies. Trade with guaranteed liquidity powered by Flipcash Protocol.",
+  metadataBase: new URL('https://moonyswap.com'),
+  openGraph: {
+    type: 'website',
+    siteName: 'Moonyswap',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@moonyswap',
+    creator: '@moonyswap',
+  },
 };
 
 export default function RootLayout({
