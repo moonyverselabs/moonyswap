@@ -481,12 +481,24 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
 
       {/* Swap Button */}
       {!wallet.connected ? (
-        <button
-          onClick={() => setWalletModalVisible(true)}
-          className="w-full py-3.5 rounded-xl font-semibold transition-all btn-moony"
-        >
-          Connect Wallet
-        </button>
+        <div>
+          <button
+            onClick={() => setWalletModalVisible(true)}
+            className="w-full py-3.5 rounded-xl font-semibold transition-all btn-moony"
+          >
+            Connect Wallet
+          </button>
+          {/* Supported wallet icons */}
+          <div className="flex items-center justify-center gap-3 mt-3 opacity-50">
+            <img src="https://phantom.app/img/phantom-icon-purple.svg" alt="Phantom" className="w-5 h-5" title="Phantom" />
+            <img src="https://solflare.com/favicon.ico" alt="Solflare" className="w-5 h-5" title="Solflare" />
+            <svg className="w-5 h-5" viewBox="0 0 40 40" fill="none" title="Backpack">
+              <rect width="40" height="40" rx="8" fill="#e33e3f"/>
+              <path d="M12 14h16v14a2 2 0 01-2 2H14a2 2 0 01-2-2V14z" fill="white"/>
+              <path d="M14 10h12a2 2 0 012 2v2H12v-2a2 2 0 012-2z" fill="white"/>
+            </svg>
+          </div>
+        </div>
       ) : (
         <button
           disabled={!quote}
