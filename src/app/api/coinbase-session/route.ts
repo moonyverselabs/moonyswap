@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Request session token from Coinbase
+    // Using 'addresses' format as per demo app
     const response = await fetch('https://api.developer.coinbase.com/onramp/v1/token', {
       method: 'POST',
       headers: {
@@ -130,14 +131,11 @@ export async function POST(request: NextRequest) {
         'Authorization': `Bearer ${jwt}`,
       },
       body: JSON.stringify({
-        destination_wallets: walletAddress ? [{
+        addresses: walletAddress ? [{
           address: walletAddress,
-          assets: ['USDC'],
-          supported_networks: ['solana'],
+          blockchains: ['solana'],
         }] : [],
         assets: ['USDC'],
-        default_asset: 'USDC',
-        default_network: 'solana',
       }),
     });
 
@@ -152,10 +150,23 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    // Return the onramp URL with session token (no appId needed - session is tied to app)
-    const onrampUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${data.token}`;
+    // Debug: log what Coinbase returns
+    console.log('Coinbase response:', JSON.stringify(data));
 
-    return NextResponse.json({ url: onrampUrl });
+    // The token might be in different fields depending on API version
+    const token = data.token || data.session_token || data.sessionToken;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'No token in response', data },
+        { status: 500 }
+      );
+    }
+
+    // Return the onramp URL with session token
+    const onrampUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${token}`;
+
+    return NextResponse.json({ url: onrampUrl, debug: { responseKeys: Object.keys(data) } });
   } catch (error) {
     console.error('Error creating Coinbase session:', error);
     return NextResponse.json(
