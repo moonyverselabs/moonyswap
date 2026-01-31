@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return the onramp URL with session token AND appId
+    // Return the onramp URL
     const onrampUrl = `https://pay.coinbase.com/buy/select-asset?appId=${COINBASE_APP_ID}&sessionToken=${token}`;
 
     return NextResponse.json({ url: onrampUrl, debug: { responseKeys: Object.keys(data) } });
