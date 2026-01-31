@@ -259,30 +259,30 @@ export default function HomePage() {
         {/* Floating blurred token icons */}
         <div className="absolute inset-0 pointer-events-none hidden lg:block">
           <img
+            src="/moony.png"
+            alt=""
+            className="absolute top-6 left-[12%] w-20 h-20 opacity-40 blur-[2px] animate-float rounded-full"
+          />
+          <img
+            src="/jeffy.png"
+            alt=""
+            className="absolute bottom-10 left-[18%] w-14 h-14 opacity-30 blur-[2px] animate-float-slow rounded-full"
+          />
+          <img
             src="/tokens/volt.svg"
             alt=""
-            className="absolute top-8 left-[8%] w-16 h-16 opacity-30 blur-[2px] animate-float"
+            className="absolute top-20 left-[5%] w-12 h-12 opacity-20 blur-[3px] animate-float-reverse"
           />
           <img
             src="/tokens/nova.svg"
             alt=""
-            className="absolute bottom-12 left-[15%] w-12 h-12 opacity-25 blur-[3px] animate-float-slow"
-          />
-          <img
-            src="/tokens/apex.svg"
-            alt=""
-            className="absolute top-20 left-[25%] w-10 h-10 opacity-20 blur-[2px] animate-float-reverse"
+            className="absolute bottom-6 left-[8%] w-10 h-10 opacity-20 blur-[4px] animate-float"
+            style={{ animationDelay: '1s' }}
           />
           <img
             src="/tokens/phnx.svg"
             alt=""
-            className="absolute bottom-8 left-[5%] w-14 h-14 opacity-20 blur-[4px] animate-float"
-            style={{ animationDelay: '1s' }}
-          />
-          <img
-            src="/tokens/cosm.svg"
-            alt=""
-            className="absolute top-16 left-[35%] w-8 h-8 opacity-15 blur-[3px] animate-float-slow"
+            className="absolute top-14 left-[30%] w-8 h-8 opacity-15 blur-[3px] animate-float-slow"
             style={{ animationDelay: '2s' }}
           />
         </div>
