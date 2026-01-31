@@ -43,7 +43,8 @@ function generateJWT(): string {
     nbf: now,
     exp: now + 120, // 2 minutes
     sub: COINBASE_API_KEY,
-    uri: 'https://api.developer.coinbase.com/onramp/v1/token',
+    aud: ['cdp_service'],
+    uri: 'POST api.developer.coinbase.com/onramp/v1/token',
   };
 
   const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
