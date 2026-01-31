@@ -39,6 +39,7 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
   const [showInputSelector, setShowInputSelector] = useState(false);
   const [showOutputSelector, setShowOutputSelector] = useState(false);
   const [coinbaseLoading, setCoinbaseLoading] = useState(false);
+  const [pendingCoinbase, setPendingCoinbase] = useState(false);
 
   // Build available tokens list
   const availableTokens: SwapToken[] = useMemo(() => {
@@ -216,14 +217,9 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
   };
 
   // Open Coinbase Onramp with secure session
-  const handleCoinbaseOnramp = async () => {
-    // Prompt to connect wallet first
-    if (!wallet.connected) {
-      setWalletModalVisible(true);
-      return;
-    }
-
+  const proceedToCoinbase = async () => {
     setCoinbaseLoading(true);
+    setPendingCoinbase(false);
 
     try {
       const response = await fetch('/api/coinbase-session', {
@@ -249,6 +245,24 @@ export function ReservePanel({ tokenMint }: ReservePanelProps) {
       setCoinbaseLoading(false);
     }
   };
+
+  const handleCoinbaseOnramp = () => {
+    // Prompt to connect wallet first
+    if (!wallet.connected) {
+      setPendingCoinbase(true);
+      setWalletModalVisible(true);
+      return;
+    }
+
+    proceedToCoinbase();
+  };
+
+  // Auto-proceed to Coinbase after wallet connects
+  useEffect(() => {
+    if (pendingCoinbase && wallet.connected) {
+      proceedToCoinbase();
+    }
+  }, [wallet.connected, pendingCoinbase]);
 
   // Token icon component
   const TokenIcon = ({ token, size = 'md' }: { token: SwapToken; size?: 'sm' | 'md' | 'lg' }) => {
